@@ -1,0 +1,4 @@
+[submodule "demo"]
+	path = demo
+	url = https://github.com/adultdate/schedule-demo
+	branch = main

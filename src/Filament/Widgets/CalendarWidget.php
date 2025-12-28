@@ -1,0 +1,215 @@
+<?php
+
+namespace Adultdate\Schedule\Filament\Widgets;
+
+use Filament\Forms\Components\ColorPicker;
+use Adultdate\Schedule\Models\CalendarSettings;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Saade\FilamentFullCalendar\Actions;
+use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
+use Carbon\Carbon;
+
+final class CalendarWidget extends FullCalendarWidget
+{
+    public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
+
+    protected static ?int $sort = 1;
+
+    protected static ?string $title = 'calendar';
+
+    protected static string $viewIdentifier = 'calendar-widget';
+
+    protected int|string|array $columnSpan = 'full';
+
+     public function config(): array
+    {
+        $settings = CalendarSettings::where('user_id', Auth::id())->first();
+
+        $openingStart = $settings?->opening_hour_start?->format('H:i:s') ?? '09:00:00';
+        $openingEnd = $settings?->opening_hour_end?->format('H:i:s') ?? '17:00:00';
+
+        $config = [
+            'initialView' => 'dayGridMonth',
+            'headerToolbar' => [
+                'left' => 'prev,next today',
+                'center' => 'title',
+                'right' => 'dayGridMonth,timeGridWeek,timeGridDay',
+            ],
+            'nowIndicator' => true,
+            'views' => [
+                'timeGridDay' => [
+                    'slotMinTime' => $openingStart,
+                    'slotMaxTime' => $openingEnd,
+                    'slotHeight' => 60,
+                ],
+                'timeGridWeek' => [
+                    'slotMinTime' => $openingStart,
+                    'slotMaxTime' => $openingEnd,
+                    'slotHeight' => 60,
+                ],
+            ],
+        ];
+
+        return $config;
+    }
+
+    public function getFormSchema(): array
+    {
+        return [
+            TextInput::make('title')
+                ->required()
+                ->maxLength(255)
+                ->label('Title'),
+
+            Textarea::make('description')
+                ->rows(3)
+                ->label('Description')
+                ->columnSpanFull(),
+
+            DateTimePicker::make('start')
+                ->required()
+                ->native(false)
+                ->seconds(false)
+                ->label('Start Date & Time'),
+
+            DateTimePicker::make('end')
+                ->required()
+                ->native(false)
+                ->seconds(false)
+                ->label('End Date & Time')
+                ->rule('after:start'),
+
+            Checkbox::make('all_day')
+                ->label('All Day Event'),
+        ];
+    }
+
+    protected function headerActions(): array
+    {
+        return [
+            Actions\CreateAction::make()
+                ->mountUsing(function ($form, array $arguments) {
+                    // Accept either Form or Schema-like objects
+                    $values = [
+                        'start' => $arguments['start'] ?? null,
+                        'end' => $arguments['end'] ?? null,
+                        'all_day' => $arguments['allDay'] ?? false,
+                    ];
+
+                    // If the caller provided ISO start/end strings, also compute date/time convenience fields
+                    if (! empty($arguments['start'])) {
+                        try {
+                            $s = Carbon::parse($arguments['start']);
+                            $values['start_date'] = $s->format('Y-m-d');
+                            $values['start_time'] = $s->format('H:i');
+                            // Use a full datetime string that DateTimePicker can parse reliably
+                            $values['start'] = $s->toDateTimeString(); // Y-m-d H:i:s
+                        } catch (\Throwable $e) {
+                            // ignore parsing errors
+                        }
+                    }
+
+                    if (! empty($arguments['end'])) {
+                        try {
+                            $e = Carbon::parse($arguments['end']);
+                            $values['end_date'] = $e->format('Y-m-d');
+                            $values['end_time'] = $e->format('H:i');
+                            $values['end'] = $e->toDateTimeString();
+                        } catch (\Throwable $e) {
+                            // ignore
+                        }
+                    }
+
+                    if ($form !== null) {
+                        // If it's a Form instance
+                        if ($form instanceof \Filament\Schemas\Components\Form) {
+                            $form->fill($values);
+
+                            return;
+                        }
+
+                        // Fallback: try fill or fillPartially
+                        if (is_object($form) && method_exists($form, 'fill')) {
+                            $form->fill($values);
+
+                            return;
+                        }
+
+                        if (is_object($form) && method_exists($form, 'fillPartially')) {
+                            $form->fillPartially($values, array_keys($values));
+
+                            return;
+                        }
+                    }
+                })
+                ->mutateFormDataUsing(function (array $data): array {
+                    // Set user_id to current user
+                    $data['user_id'] = Auth::user()?->id;
+
+                    return $data;
+                }),
+        ];
+    }
+
+    /**
+     * Handle date/time selection from FullCalendar and mount the Create action.
+     * Provides normalized ISO strings and convenience start_date/start_time/end_date/end_time fields.
+     */
+    public function onDateSelect(string $start, ?string $end, bool $allDay, ?array $view, ?array $resource): void
+    {
+        // The parent trait provides calculateTimezoneOffset() that normalizes timezone and all-day behavior
+        if (method_exists($this, 'calculateTimezoneOffset')) {
+            [$startCarbon, $endCarbon] = $this->calculateTimezoneOffset($start, $end, $allDay);
+        } else {
+            $timezone = config('app.timezone');
+            $startCarbon = Carbon::parse($start, $timezone);
+            $endCarbon = $end ? Carbon::parse($end, $timezone) : null;
+        }
+
+        $startIso = $startCarbon->toIsoString();
+        $endIso = $endCarbon ? $endCarbon->toIsoString() : null;
+
+        $startDate = $startCarbon->format('Y-m-d');
+        $startTime = $startCarbon->format('H:i');
+        $endDate = $endCarbon ? $endCarbon->format('Y-m-d') : null;
+        $endTime = $endCarbon ? $endCarbon->format('H:i') : null;
+
+        $this->mountAction('create', [
+            'type' => 'select',
+            'start' => $startIso,
+            'end' => $endIso,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'end_date' => $endDate,
+            'end_time' => $endTime,
+            'allDay' => $allDay,
+            'resource' => $resource,
+        ]);
+
+        // Force the frontend to synchronize action modals so the modal opens immediately
+        $newIndex = max(0, count($this->mountedActions) - 1);
+        $this->dispatch('sync-action-modals', id: $this->getId(), newActionNestingIndex: $newIndex);
+    }
+
+    protected function modalActions(): array
+    {
+        return [
+            Actions\EditAction::make()
+                ->mutateFormDataUsing(function (array $data): array {
+                    // Ensure user_id is preserved
+                    if (! isset($data['user_id'])) {
+                        $data['user_id'] = Auth::user()?->id;
+                    }
+
+                    return $data;
+                }),
+        ];
+    }
+}
