@@ -104,6 +104,10 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                         $formOrSchema->fill([]);
                     }
 
+                    // Debug: record the type of the mounted object and whether we can inspect state
+                    $type = is_object($formOrSchema) ? get_class($formOrSchema) : gettype($formOrSchema);
+                    $canGetState = method_exists($formOrSchema, 'getState') || method_exists($formOrSchema, 'get') || method_exists($formOrSchema, 'getStatePath');
+
                     // If no date was provided, mount empty defaults and return
                     if (! isset($arguments['start']) && ! isset($arguments['start_date'])) {
                         return;
@@ -232,7 +236,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                     $raw = $action->getData() ?: $action->getRawData();
 
                     // Debug: log the action data to inspect why periods may not be created
-                    file_put_contents(storage_path('logs/schedule_debug.log'), print_r($raw, true), FILE_APPEND);
+
 
                     // Refresh calendar and notify user
                     $this->refreshRecords();
@@ -424,7 +428,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
             $endTime = $endCarbon ? $endCarbon->format('H:i') : null;
         }
 
-        $this->mountAction('create', [
+        $payload = [
             'type' => 'select',
             'start' => $startIso,
             'end' => $endIso,
@@ -434,7 +438,46 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
             'end_time' => $endTime,
             'allDay' => $allDay,
             'resource' => $resource,
-        ]);
+            // Add an explicit `data` payload so mountedActions.0.data.* entanglement works regardless of form field naming
+            'data' => [
+                // schedule-style
+                'start_date' => $startDate,
+                'start_time' => $startTime,
+                'end_date' => $endDate,
+                'end_time' => $endTime,
+                // event-style (combined ISO datetimes)
+                'starts_at' => $startIso,
+                'ends_at' => $endIso,
+                // Provide current user id so entangled fields exist
+                'user_id' => Auth::user()?->id,
+            ],
+        ];
+
+        // Debug: record mount payload so we can inspect what the frontend supplied
+
+
+        $this->mountAction('create', $payload);
+
+        // Debug: inspect mountedActions last entry
+        try {
+            $last = end($this->mountedActions);
+
+            $args = null;
+
+            if (is_object($last) && method_exists($last, 'getArguments')) {
+                try {
+                    $args = $last->getArguments();
+                } catch (\Throwable $_) {
+                    $args = null;
+                }
+            } elseif (is_array($last) && isset($last['arguments'])) {
+                $args = $last['arguments'];
+            }
+
+
+        } catch (\Throwable $e) {
+            file_put_contents(storage_path('logs/schedule_mount_debug.log'), now()->toDateTimeString() . ' | mountedActions inspect failed: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
+        }
 
         // Ensure the modal syncs to open on the frontend
         $newIndex = max(0, count($this->mountedActions) - 1);
@@ -455,14 +498,32 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         $startDate = $startCarbon->format('Y-m-d');
         $startTime = $startCarbon->format('H:i');
 
-        $this->mountAction('create', [
+        $payload = [
             'type' => 'click',
             'start' => $startIso,
             'start_date' => $startDate,
             'start_time' => $startTime,
             'allDay' => $allDay,
             'resource' => null,
-        ]);
+            // Add data payload for entanglement (both formats)
+            'data' => [
+                'start_date' => $startDate,
+                'start_time' => $startTime,
+                'starts_at' => $startIso,
+            ],
+        ];
+
+
+
+        $this->mountAction('create', $payload);
+
+        // Debug: inspect mountedActions last entry
+        try {
+            $last = end($this->mountedActions);
+            // debugging removed
+        } catch (\Throwable $e) {
+            // ignored
+        }
 
         // Ensure the modal syncs to open on the frontend
         $newIndex = max(0, count($this->mountedActions) - 1);
@@ -478,9 +539,21 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
      */
     public function onNoEventsClick(NoEventsClickInfo $info): void
     {
-        $this->mountAction('create', [
+        $payload = [
             'type' => 'click',
-        ]);
+        ];
+
+
+
+        $this->mountAction('create', $payload);
+
+        // Debug: inspect mountedActions last entry
+        try {
+            $last = end($this->mountedActions);
+            // debugging removed
+        } catch (\Throwable $e) {
+            // ignored
+        }
 
         $newIndex = max(0, count($this->mountedActions) - 1);
         $this->dispatch('sync-action-modals', id: $this->getId(), newActionNestingIndex: $newIndex);

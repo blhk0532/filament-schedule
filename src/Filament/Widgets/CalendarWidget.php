@@ -204,6 +204,17 @@ final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Sche
             'end_time' => $endTime,
             'allDay' => $allDay,
             'resource' => $resource,
+            // Provide `data` payload so action entanglement paths exist for fields like starts_at/ends_at/description/users
+            'data' => [
+                'start_date' => $startDate,
+                'start_time' => $startTime,
+                'end_date' => $endDate,
+                'end_time' => $endTime,
+                'starts_at' => $startIso,
+                'ends_at' => $endIso,
+                'description' => null,
+                'users' => [],                // Ensure entangled property exists for forms expecting a user id
+                'user_id' => Auth::user()?->id,            ],
         ]);
 
         // Force the frontend to synchronize action modals so the modal opens immediately
