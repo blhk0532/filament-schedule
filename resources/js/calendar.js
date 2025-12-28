@@ -107,6 +107,8 @@ export default function calendar({
                         tzOffset: -new Date().getTimezoneOffset()
                     }
 
+                    console.log('[calendar] dateClick', data)
+
                     if (hasDateClickContextMenu) {
                         this.openContextMenu(info.jsEvent, data, 'dateClick')
                     } else {
@@ -127,6 +129,8 @@ export default function calendar({
                         resource: info.resource,
                         tzOffset: -new Date().getTimezoneOffset()
                     }
+
+                    console.log('[calendar] dateSelect', data)
 
                     if (hasDateSelectContextMenu) {
                         this.openContextMenu(info.jsEvent, data, 'dateSelect')
@@ -151,8 +155,34 @@ export default function calendar({
 
             if (eventClickEnabled) {
                 settings.eventClick = (info) => {
-                    const component = Alpine.$data(info.el)
-                    component.onClick(info)
+                    try {
+                        console.log('[calendar] eventClick', info.event)
+
+                        const el = info.el || (info.jsEvent && info.jsEvent.target) || null
+                        let component = null
+
+                        if (el) {
+                            try {
+                                component = Alpine.$data(el)
+                            } catch (e) {
+                                // ignore
+                            }
+                        }
+
+                        if (component && typeof component.onClick === 'function') {
+                            component.onClick(info)
+                            return
+                        }
+
+                        // Fallback: call Livewire handler directly if Alpine component is not available
+                        this.$wire.onEventClickJs({
+                            event: info.event,
+                            view: info.view,
+                            tzOffset: -new Date().getTimezoneOffset(),
+                        })
+                    } catch (e) {
+                        console.error('[calendar] eventClick handler error', e)
+                    }
                 }
             }
 
@@ -209,6 +239,7 @@ export default function calendar({
                     return
                 }
 
+                info.el.setAttribute('data-calendar-event', '1')
                 info.el.setAttribute('x-load')
                 info.el.setAttribute('x-load-src', eventAssetUrl)
                 info.el.setAttribute('x-data', `calendarEvent({
@@ -282,6 +313,7 @@ export default function calendar({
         openContextMenu: function (jsEvent, data, context) {
             const element = document.querySelector('[calendar-context-menu]')
             const contextMenu = Alpine.$data(element)
+            console.debug('[calendar] openContextMenu', context, data)
             contextMenu.loadActions(context, data)
             contextMenu.openMenu(jsEvent)
         }

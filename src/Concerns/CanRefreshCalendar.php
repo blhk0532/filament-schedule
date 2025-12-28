@@ -6,7 +6,8 @@ trait CanRefreshCalendar
 {
     public function refreshRecords(): static
     {
-        $this->dispatch('calendar--refresh');
+        // Use the FullCalendar-specific event name so the JS listener refetches events
+        $this->dispatch('filament-fullcalendar--refresh');
 
         return $this;
     }

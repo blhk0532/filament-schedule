@@ -56,6 +56,10 @@
             @class(FilamentColor::getComponentClasses(ButtonComponent::class, 'primary'))
         >
             <div data-calendar></div>
+            {{-- Fallback: ensure the built calendar assets are loaded if FilamentAsset registration failed --}}
+            <script defer src="{{ asset('vendor/adultdate-schedule/calendar.js') }}"></script>
+            <script defer src="{{ asset('vendor/adultdate-schedule/calendar-event.js') }}"></script>
+            <script defer src="{{ asset('vendor/adultdate-schedule/calendar-context-menu.js') }}"></script>
             @if($this->hasContextMenu())
                 <x-adultdate-schedule::context-menu/>
             @endif

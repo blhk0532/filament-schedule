@@ -5,6 +5,7 @@ namespace Adultdate\Schedule\Concerns;
 use Adultdate\Schedule\Enums\Context;
 use Adultdate\Schedule\ValueObjects\EventClickInfo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 trait HandlesEventClick
 {
@@ -44,6 +45,8 @@ trait HandlesEventClick
         if (! $this->isEventClickEnabled()) {
             return;
         }
+
+        Log::debug('onEventClickJs called (schedule)', ['data' => $data, 'action' => $action]);
 
         $this->setRawCalendarContextData(Context::EventClick, $data);
 

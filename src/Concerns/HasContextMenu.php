@@ -119,7 +119,7 @@ trait HasContextMenu
             throw new InvalidArgumentException('Context menu actions must be an instance of ' . Action::class . '.');
         }
 
-        $this->cacheAction($action);
+        $this->cacheLivewireAction($action);
         $cachedActions = data_get($this->cachedContextMenuActions, $context->value, []);
         $this->cachedContextMenuActions[$context->value] = [
             ...$cachedActions,

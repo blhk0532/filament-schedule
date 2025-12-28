@@ -61,7 +61,7 @@ final class CalendarEventForm
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->visible(fn () => Auth::user()?->hasRole('super_admin')),
+                            ->visible(fn () => Auth::user()),
                     ])
                     ->columns(2),
             ]);

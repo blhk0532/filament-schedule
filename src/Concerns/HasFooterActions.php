@@ -28,7 +28,7 @@ trait HasFooterActions
                 /** @var array<string, Action> $flatActions */
                 $flatActions = $action->getFlatActions();
 
-                $this->mergeCachedActions($flatActions);
+                $this->mergeCachedFooterActions($flatActions);
                 $this->cachedFooterActions[] = $action;
 
                 continue;
@@ -38,9 +38,15 @@ trait HasFooterActions
                 throw new InvalidArgumentException('Footer actions must be an instance of ' . Action::class . ', or ' . ActionGroup::class . '.');
             }
 
-            $this->cacheAction($action);
+            $this->cacheLivewireAction($action);
             $this->cachedFooterActions[] = $action;
         }
+    }
+
+    protected function mergeCachedFooterActions(array $actions): void
+    {
+        // This trait doesn't maintain a global cached actions array like InteractsWithActions
+        // So we don't need to do anything here
     }
 
     public function getCachedFooterActions(): array

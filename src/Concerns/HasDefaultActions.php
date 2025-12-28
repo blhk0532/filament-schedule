@@ -16,15 +16,23 @@ trait HasDefaultActions
      *
      * @param  string  $model  The model class for which you want to make a create action.
      */
-    protected function createAction(string $model, ?string $name = null): CreateAction
+    protected function createAction(?string $model = null, ?string $name = null): CreateAction
     {
-        if (! $name) {
-            $name = Str::of('create')->append(Str::pascal(class_basename($model)))->toString();
+        if (! $model && method_exists($this, 'getModel')) {
+            $model = $this->getModel();
         }
 
-        return CreateAction::make($name)
-            ->model($model)
-        ;
+        if (! $name) {
+            $name = $model ? Str::of('create')->append(Str::pascal(class_basename($model)))->toString() : 'create';
+        }
+
+        $action = CreateAction::make($name);
+
+        if ($model) {
+            $action->model($model);
+        }
+
+        return $action;
     }
 
     public function viewAction(): ViewAction
@@ -40,5 +48,26 @@ trait HasDefaultActions
     public function deleteAction(): DeleteAction
     {
         return DeleteAction::make();
+    }
+
+    /**
+     * Cache default actions so they can be resolved by name when mounted.
+     * This is invoked by Filament's `InteractsWithActions::cacheTraitActions()`
+     * during the Livewire component boot cycle.
+     */
+    protected function cacheHasDefaultActions(): void
+    {
+        // Cache common create actions used by the calendar widgets.
+        try {
+            $this->cacheAction($this->createAction(\Adultdate\Schedule\Models\Meeting::class, 'ctxCreateMeeting'));
+        } catch (\Throwable $e) {
+            // Swallow - caching is best-effort during boot.
+        }
+
+        try {
+            $this->cacheAction($this->createAction(\Adultdate\Schedule\Models\Sprint::class, 'ctxCreateSprint'));
+        } catch (\Throwable $e) {
+            // Swallow
+        }
     }
 }

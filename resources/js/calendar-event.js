@@ -18,6 +18,8 @@ export default function calendarEvent({
                 this.initializeContextMenu()
             }
             this.$el.setAttribute('data-event-id', event.id)
+            // marker for debugging and easy selection in the browser
+            this.$el.setAttribute('data-calendar-event', 'true')
 
             this.$el.addEventListener('mouseenter', () => {
                 document.querySelectorAll(`.ec-event[data-event-id="${event.id}"]`).forEach(el => {
@@ -69,6 +71,13 @@ export default function calendarEvent({
                     this.$el
                 )
                 return
+            }
+
+            // Debug: log click and data so we can confirm client-side invocation
+            try {
+                console.log('[calendar-event] onClick', {data})
+            } catch (e) {
+                // ignore
             }
 
             this.$wire.onEventClickJs(data)

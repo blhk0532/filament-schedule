@@ -14,6 +14,8 @@ class EventCalendarPage extends Page
 
     protected static ?string $navigationLabel = 'Booking';
 
+    protected static ?int $sort = 1;
+
     protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     /**

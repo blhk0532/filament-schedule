@@ -5,6 +5,7 @@ namespace Adultdate\Schedule\Concerns;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Support\Concerns\EvaluatesClosures;
+use Illuminate\Support\Facades\Log;
 
 trait InteractsWithCalendar
 {
@@ -46,6 +47,13 @@ trait InteractsWithCalendar
 
     public function mountAction(string $name, array $arguments = [], array $context = []): mixed
     {
+        Log::debug('InteractsWithCalendar::mountAction', [
+            'name' => $name,
+            'arguments' => $arguments,
+            'context' => $context,
+            'rawCalendarContext' => $this->getRawCalendarContextData(),
+        ]);
+
         return $this->baseMountAction($name, [
             ...$arguments,
             ...$this->getRawCalendarContextData() ?? [],

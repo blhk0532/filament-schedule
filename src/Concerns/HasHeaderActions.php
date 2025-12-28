@@ -27,7 +27,7 @@ trait HasHeaderActions
                 /** @var array<string, Action> $flatActions */
                 $flatActions = $action->getFlatActions();
 
-                $this->mergeCachedActions($flatActions);
+                $this->mergeCachedHeaderActions($flatActions);
                 $this->cachedHeaderActions[] = $action;
 
                 continue;
@@ -37,9 +37,22 @@ trait HasHeaderActions
                 throw new InvalidArgumentException('Header actions must be an instance of ' . Action::class . ', or ' . ActionGroup::class . '.');
             }
 
-            $this->cacheAction($action);
+            $this->cacheLivewireAction($action);
             $this->cachedHeaderActions[] = $action;
         }
+    }
+
+    protected function cacheLivewireAction(Action $action): Action
+    {
+        $action->livewire($this);
+
+        return $action;
+    }
+
+    protected function mergeCachedHeaderActions(array $actions): void
+    {
+        // This trait doesn't maintain a global cached actions array like InteractsWithActions
+        // So we don't need to do anything here
     }
 
     public function getCachedHeaderActions(): array

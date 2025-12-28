@@ -10,14 +10,27 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Saade\FilamentFullCalendar\Actions;
-use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
+use Adultdate\Schedule\Actions;
+use Adultdate\Schedule\Filament\Widgets\FullCalendarWidget;
 use Carbon\Carbon;
+use Adultdate\Schedule\Concerns\HasHeaderActions;
+use Adultdate\Schedule\Concerns\InteractsWithCalendar;
+use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
+use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
+use Adultdate\Schedule\Concerns\HasSchema;
+use Adultdate\Schedule\Concerns\CanRefreshCalendar;
+use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
+use Adultdate\Schedule\ValueObjects\FetchInfo;
 
-final class CalendarWidget extends FullCalendarWidget
+use Adultdate\Schedule\Contracts\HasCalendar;
+
+final class CalendarWidget extends FullCalendarWidget implements HasCalendar
 {
+    use HasHeaderActions, InteractsWithCalendar, CanBeConfigured, InteractsWithRawJS, HasSchema, CanRefreshCalendar, InteractsWithEventRecord;
     public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
 
     protected static ?int $sort = 2;
@@ -28,7 +41,12 @@ final class CalendarWidget extends FullCalendarWidget
 
     protected static string $viewIdentifier = 'calendar-widget';
 
-    protected int|string|array $columnSpan = 'full';
+   // protected int|string|array $columnSpan = 'full';
+
+    public function getModel(): string
+    {
+        return $this->model;
+    }
 
      public function config(): array
     {
@@ -93,7 +111,18 @@ final class CalendarWidget extends FullCalendarWidget
         ];
     }
 
-    protected function headerActions(): array
+    protected function getEvents(FetchInfo $info): Collection|array|Builder
+    {
+        $start = $info->start->toMutable()->startOfDay();
+        $end = $info->end->toMutable()->endOfDay();
+
+        return \Adultdate\Schedule\Models\CalendarEvent::query()
+            ->whereDate('ends_at', '>=', $start)
+            ->whereDate('starts_at', '<=', $end)
+            ->get();
+    }
+
+    public function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()

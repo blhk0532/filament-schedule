@@ -13,13 +13,29 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
+use Adultdate\Schedule\Filament\Widgets\FullCalendarWidget;
 use Adultdate\Schedule\Enums\Frequency;
 use Adultdate\Schedule\Enums\ScheduleTypes;
 use Adultdate\Schedule\Models\Schedule;
+use Adultdate\Schedule\Concerns\HasHeaderActions;
+use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
+use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
+use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithEvents;
+use Adultdate\Schedule\Concerns\HasSchema;
+use Adultdate\Schedule\Concerns\CanRefreshCalendar;
+use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
 
-class SchedulesCalendarWidget extends FullCalendarWidget
+use Adultdate\Schedule\Contracts\HasCalendar;
+
+class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 {
+    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS, InteractsWithEvents, HasSchema, CanRefreshCalendar, InteractsWithEventRecord {
+        // Prefer the contract-compatible refreshRecords (chainable) from CanRefreshCalendar
+        CanRefreshCalendar::refreshRecords insteadof InteractsWithEvents;
+
+        // Keep the frontend-only refresh available under an alias if needed
+        InteractsWithEvents::refreshRecords as refreshRecordsFrontend;
+    }
     /**
      * Return FullCalendar config overrides for this widget.
      */
@@ -54,16 +70,16 @@ class SchedulesCalendarWidget extends FullCalendarWidget
     /**
      * Customize header actions (prefill create form when user selects a date range).
      */
-    protected function headerActions(): array
+    public function getHeaderActions(): array
     {
         return [
-            \Saade\FilamentFullCalendar\Actions\CreateAction::make()
+            \Adultdate\Schedule\Actions\CreateAction::make()
                 ->mountUsing(function ($formOrSchema, array $arguments) {
                     if (! isset($arguments['start'])) {
                         return;
                     }
 
-                    $timezone = \Saade\FilamentFullCalendar\FilamentFullCalendarPlugin::make()->getTimezone();
+                    $timezone = \Adultdate\Schedule\SchedulePlugin::make()->getTimezone();
 
                     $start = \Carbon\Carbon::parse($arguments['start'], $timezone);
 
@@ -278,7 +294,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget
             $period = \Adultdate\Schedule\Models\SchedulePeriod::find($periodId);
 
             if ($period) {
-                $timezone = \Saade\FilamentFullCalendar\FilamentFullCalendarPlugin::make()->getTimezone();
+                $timezone = \Adultdate\Schedule\SchedulePlugin::make()->getTimezone();
 
                 $start = \Carbon\Carbon::parse($event['start'], $timezone);
                 $period->date = $start->format('Y-m-d');
@@ -311,7 +327,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget
             $period = \Adultdate\Schedule\Models\SchedulePeriod::find($periodId);
 
             if ($period) {
-                $timezone = \Saade\FilamentFullCalendar\FilamentFullCalendarPlugin::make()->getTimezone();
+                $timezone = \Adultdate\Schedule\SchedulePlugin::make()->getTimezone();
 
                 if (isset($event['start'])) {
                     $start = \Carbon\Carbon::parse($event['start'], $timezone);
