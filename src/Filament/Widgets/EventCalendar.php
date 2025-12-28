@@ -5,10 +5,8 @@ namespace Adultdate\Schedule\Filament\Widgets;
 use Adultdate\Schedule\Enums\Priority;
 use Adultdate\Schedule\Models\Meeting;
 use Adultdate\Schedule\Models\Sprint;
-use Filament\Actions\ActionGroup;
 use Adultdate\Schedule\Models\CalendarSettings;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Adultdate\Schedule\Attributes\CalendarEventContent;
 use Adultdate\Schedule\Filament\Actions\CreateAction;
@@ -23,8 +21,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
-class EventCalendar extends CalendarWidget
+final class EventCalendar extends CalendarWidget
 {
+ 
+
     protected string|HtmlString|bool|null $heading = 'Calendar';
 
     protected bool $eventClickEnabled = true;
@@ -37,22 +37,21 @@ class EventCalendar extends CalendarWidget
 
     protected bool $dateSelectEnabled = true;
 
-       protected static ?int $sort = 1;
+    protected static ?int $sort = 1;
 
-     public function config(): array
+    public function config(): array
     {
         $settings = CalendarSettings::where('user_id', Auth::id())->first();
 
-        $openingStart = $settings?->opening_hour_start?->format('H:i:s') ?? '09:00:00';
-        $openingEnd = $settings?->opening_hour_end?->format('H:i:s') ?? '17:00:00';
+        $openingStart = $settings->opening_hour_start?->format('H:i:s') ?? '09:00:00';
+        $openingEnd = $settings->opening_hour_end?->format('H:i:s') ?? '17:00:00';
 
         $config = [
-            // Use a time-grid by default to emphasize event times; enable week/day views in the toolbar
             'initialView' => 'timeGridWeek',
             'headerToolbar' => [
-                'left' => 'prev,next today',
+                'left' => 'prev,next today,timeGridWeek,timeGridDay',
                 'center' => 'title',
-                'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+                'right' => 'dayGridMonth,listWeek',
             ],
             'nowIndicator' => true,
             'views' => [
@@ -77,13 +76,13 @@ class EventCalendar extends CalendarWidget
         $start = $info->start->toMutable()->startOfDay();
         $end = $info->end->toMutable()->endOfDay();
 
-        $meetings = \Adultdate\Schedule\Models\Meeting::query()
+        $meetings = Meeting::query()
             ->withCount('users')
             ->whereDate('ends_at', '>=', $start)
             ->whereDate('starts_at', '<=', $end)
             ->get();
 
-        $sprints = \Adultdate\Schedule\Models\Sprint::query()
+        $sprints = Sprint::query()
             ->whereDate('ends_at', '>=', $start)
             ->whereDate('starts_at', '<=', $end)
             ->get();
@@ -105,7 +104,7 @@ class EventCalendar extends CalendarWidget
     protected function getDateClickContextMenuActions(): array
     {
         return [
-            $this->createAction(\Adultdate\Schedule\Models\Meeting::class, 'ctxCreateMeeting')
+            $this->createAction(Meeting::class, 'ctxCreateMeeting')
                 ->label('Schedule meeting')
                 ->icon('heroicon-o-calendar-days')
                 ->modalHeading('Schedule meeting')
@@ -117,7 +116,6 @@ class EventCalendar extends CalendarWidget
 
                     $start = $info->date->toMutable()->setTime(12, 0);
 
-                    // DateTimePicker expects a datetime string the form can parse reliably
                     $schema->fill([
                         'starts_at' => $start->toDateTimeString(),
                         'ends_at' => $start->copy()->addHour()->toDateTimeString(),
@@ -129,7 +127,7 @@ class EventCalendar extends CalendarWidget
     protected function getDateSelectContextMenuActions(): array
     {
         return [
-            $this->createAction(\Adultdate\Schedule\Models\Sprint::class, 'ctxCreateSprint')
+            $this->createAction(Sprint::class, 'ctxCreateSprint')
                 ->label('Plan sprint')
                 ->icon('heroicon-o-flag')
                 ->modalHeading('Plan sprint')
@@ -147,8 +145,6 @@ class EventCalendar extends CalendarWidget
                         $end->subDay()->endOfDay();
                     }
 
-                    // DatePicker expects date strings (Y-m-d); DateTimePicker expects datetime strings
-                    // Sprints use DatePicker for starts_at/ends_at, so provide date-only strings
                     $schema->fill([
                         'priority' => Priority::Medium->value,
                         'starts_at' => $start->format('Y-m-d'),
@@ -205,13 +201,13 @@ class EventCalendar extends CalendarWidget
         return true;
     }
 
-    #[CalendarEventContent(model: \Adultdate\Schedule\Models\Meeting::class)]
+    #[CalendarEventContent(model: Meeting::class)]
     protected function meetingEventContent(): string
     {
         return view('adultdate-schedule::components.calendar.events.meeting')->render();
     }
 
-    #[CalendarEventContent(model: \Adultdate\Schedule\Models\Sprint::class)]
+    #[CalendarEventContent(model: Sprint::class)]
     protected function sprintEventContent(): string
     {
         return view('adultdate-schedule::components.calendar.events.sprint')->render();

@@ -1,7 +1,7 @@
 export default function calendar({
                                      view = 'dayGridMonth',
                                      locale = 'en',
-                                     firstDay = 1,
+                                     firstDay = 1, 
                                      dayMaxEvents = false,
                                      eventContent = null,
                                      eventClickEnabled = false,
@@ -63,7 +63,7 @@ export default function calendar({
                 selectable: dateSelectEnabled,
                 eventStartEditable: eventDragEnabled,
                 eventDurationEditable: eventResizeEnabled,
-                dayCellFormat: (date) => date.getDate().toString()
+                dayCellFormat: (date) => date.getDate().toString(),
             }
 
             if (eventContent !== null) {
@@ -292,10 +292,12 @@ export default function calendar({
                 }
             }
 
-            return {
+            const finalSettings = {
                 ...settings,
                 ...options,
-            }
+            };
+            console.debug('[calendar] Final settings', finalSettings);
+            return finalSettings;
         },
 
         wrapContent: function (content, info) {
