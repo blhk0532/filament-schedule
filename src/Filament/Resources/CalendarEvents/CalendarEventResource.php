@@ -23,6 +23,8 @@ final class CalendarEventResource extends Resource
 {
     protected static ?string $model = CalendarEvent::class;
 
+    protected static ?int $sort = 1;
+
     protected static ?string $navigationLabel = 'Events';
 
     protected static string|UnitEnum|null $navigationGroup = 'Schedules';

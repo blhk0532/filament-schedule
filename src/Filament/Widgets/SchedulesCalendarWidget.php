@@ -23,7 +23,9 @@ class SchedulesCalendarWidget extends FullCalendarWidget
     /**
      * Return FullCalendar config overrides for this widget.
      */
-   protected static ?int $sort = 3;
+    protected static bool $isDiscovered = false;
+
+    protected static ?int $sort = 3;
 
     public function config(): array
     {

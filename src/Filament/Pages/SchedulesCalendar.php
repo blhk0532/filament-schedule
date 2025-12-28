@@ -13,6 +13,8 @@ class SchedulesCalendar extends BasePage
 
      protected static ?string $navigationLabel = 'Calendar';
 
+     protected static ?int $sort = 3;
+
     protected static string|UnitEnum|null $navigationGroup = 'Schedules';
 
     /**

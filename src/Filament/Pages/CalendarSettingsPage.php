@@ -24,6 +24,8 @@ final class CalendarSettingsPage extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Settings';
 
+    protected static ?int $sort = 10;
+
     protected static string|UnitEnum|null $navigationGroup = 'Schedules';
 
     public function mount(): void

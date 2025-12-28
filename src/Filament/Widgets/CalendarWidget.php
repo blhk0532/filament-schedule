@@ -22,6 +22,8 @@ final class CalendarWidget extends FullCalendarWidget
 
     protected static ?int $sort = 2;
 
+    protected static bool $isDiscovered = true;
+
     protected static ?string $title = 'calendar';
 
     protected static string $viewIdentifier = 'calendar-widget';
@@ -164,7 +166,7 @@ final class CalendarWidget extends FullCalendarWidget
      */
     public function onDateSelect(string $start, ?string $end, bool $allDay, ?array $view, ?array $resource): void
     {
-        // The parent trait provides calculateTimezoneOffset() that normalizes timezone and all-day behavior
+        // The parent trait provides calculateTimezoneOffset() that normalizes timezone and day behavior
         if (method_exists($this, 'calculateTimezoneOffset')) {
             [$startCarbon, $endCarbon] = $this->calculateTimezoneOffset($start, $end, $allDay);
         } else {

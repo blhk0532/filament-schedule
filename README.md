@@ -260,8 +260,8 @@ CalendarEvent::make()
     ->end(today()->addDays(3));
 ```
 
-#### Making the filament-schedule all-day
-Sets whether the filament-schedule is an all-day filament-schedule or not.
+#### Making the filament-schedule day
+Sets whether the filament-schedule is an day filament-schedule or not.
 ```php
 CalendarEvent::make()->allDay();
 ```

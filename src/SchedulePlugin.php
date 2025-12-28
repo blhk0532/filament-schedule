@@ -17,6 +17,7 @@ use Adultdate\Schedule\Filament\Resources\Projects\ProjectResource;
 use Adultdate\Schedule\Filament\Resources\Sprints\SprintResource;
 use Adultdate\Schedule\Filament\Resources\Tasks\TaskResource;
 use Adultdate\Schedule\Filament\Pages\SchedulesCalendar;
+use Adultdate\Schedule\Filament\Pages\EventCalendarPage;
 
 class SchedulePlugin implements Plugin
 {
@@ -32,15 +33,17 @@ class SchedulePlugin implements Plugin
                 NavigationGroup::make('Schedules')
                     ->icon('heroicon-o-calendar-days'),
             ])
+            ->discoverWidgets(in: app_path('vendor/filament/filament/src/Filament/Widgets'), for: 'Adultdate\\Schedule\\Filament\\Widgets')
             ->pages([
+                EventCalendarPage::class,
                 Calendar::class,
-                CalendarSettingsPage::class,
                 SchedulesCalendar::class,
+                CalendarSettingsPage::class,
             ])
             ->resources([
-                ScheduleResource::class,
                 CalendarEventResource::class,
                 MeetingResource::class,
+                ScheduleResource::class,
                 ProjectResource::class,
                 SprintResource::class,
                 TaskResource::class,

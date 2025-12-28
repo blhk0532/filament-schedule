@@ -19,6 +19,8 @@ class MeetingResource extends Resource
 {
     protected static ?string $model = Meeting::class;
 
+    protected static ?int $sort = 2;
+
     protected static string|UnitEnum|null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema

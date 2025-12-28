@@ -2,19 +2,17 @@
 
 namespace Adultdate\Schedule\Filament\Pages;
 
-use Adultdate\Schedule\Filament\Widgets\CalendarWidget;
+use Adultdate\Schedule\Filament\Widgets\EventCalendar;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Widgets\Widget;
 use UnitEnum;
 
-class Calendar extends Page
+class EventCalendarPage extends Page
 {
     protected string $view = 'adultdate-schedule::pages.calendar';
 
-    protected static ?string $navigationLabel = 'Kalender';
-
-    protected static ?int $sort = 2;
+    protected static ?string $navigationLabel = 'Booking';
 
     protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
@@ -27,7 +25,7 @@ class Calendar extends Page
     protected function getWidgets(): array
     {
         return [
-            CalendarWidget::class,
+            EventCalendar::class,
         ];
     }
 
@@ -40,7 +38,7 @@ class Calendar extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            CalendarWidget::class,
+            EventCalendar::class,
         ];
     }
 }

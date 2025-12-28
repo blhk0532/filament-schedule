@@ -19,6 +19,8 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = ZapSchedule::class;
 
+    protected static ?int $sort = 3;
+
     protected static string|UnitEnum|null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
