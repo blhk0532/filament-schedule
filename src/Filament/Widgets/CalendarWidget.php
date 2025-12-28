@@ -20,7 +20,7 @@ final class CalendarWidget extends FullCalendarWidget
 {
     public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 2;
 
     protected static ?string $title = 'calendar';
 
@@ -36,7 +36,7 @@ final class CalendarWidget extends FullCalendarWidget
         $openingEnd = $settings?->opening_hour_end?->format('H:i:s') ?? '17:00:00';
 
         $config = [
-            'initialView' => 'dayGridMonth',
+            'initialView' => 'timeGridWeek',
             'headerToolbar' => [
                 'left' => 'prev,next today',
                 'center' => 'title',

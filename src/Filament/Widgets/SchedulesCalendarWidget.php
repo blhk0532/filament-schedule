@@ -23,10 +23,12 @@ class SchedulesCalendarWidget extends FullCalendarWidget
     /**
      * Return FullCalendar config overrides for this widget.
      */
+   protected static ?int $sort = 3;
+
     public function config(): array
     {
         return [
-            'initialView' => 'dayGridMonth',
+            'initialView' => 'timeGridDay',
             'headerToolbar' => [
                 'left' => 'prev,next today',
                 'center' => 'title',

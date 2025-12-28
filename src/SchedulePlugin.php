@@ -46,7 +46,7 @@ class SchedulePlugin implements Plugin
                 TaskResource::class,
             ])
             ->widgets([
-              SchedulesCalendarWidget::class,
+                SchedulesCalendarWidget::class,
                 CalendarWidget::class,
                 EventCalendar::class,
             ]);

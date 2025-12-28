@@ -37,6 +37,8 @@ class EventCalendar extends CalendarWidget
 
     protected bool $dateSelectEnabled = true;
 
+       protected static ?int $sort = 1;
+
      public function config(): array
     {
         $settings = CalendarSettings::where('user_id', Auth::id())->first();
