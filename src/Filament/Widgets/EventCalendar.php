@@ -47,11 +47,12 @@ class EventCalendar extends CalendarWidget
         $openingEnd = $settings?->opening_hour_end?->format('H:i:s') ?? '17:00:00';
 
         $config = [
-            'initialView' => 'dayGridMonth',
+            // Use a time-grid by default to emphasize event times; enable week/day views in the toolbar
+            'initialView' => 'timeGridWeek',
             'headerToolbar' => [
                 'left' => 'prev,next today',
                 'center' => 'title',
-                'right' => 'dayGridMonth,timeGridWeek,timeGridDay',
+                'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
             ],
             'nowIndicator' => true,
             'views' => [
@@ -116,9 +117,10 @@ class EventCalendar extends CalendarWidget
 
                     $start = $info->date->toMutable()->setTime(12, 0);
 
+                    // DateTimePicker expects a datetime string the form can parse reliably
                     $schema->fill([
-                        'starts_at' => $start,
-                        'ends_at' => $start->copy()->addHour(),
+                        'starts_at' => $start->toDateTimeString(),
+                        'ends_at' => $start->copy()->addHour()->toDateTimeString(),
                     ]);
                 }),
         ];
@@ -145,10 +147,12 @@ class EventCalendar extends CalendarWidget
                         $end->subDay()->endOfDay();
                     }
 
+                    // DatePicker expects date strings (Y-m-d); DateTimePicker expects datetime strings
+                    // Sprints use DatePicker for starts_at/ends_at, so provide date-only strings
                     $schema->fill([
                         'priority' => Priority::Medium->value,
-                        'starts_at' => $start,
-                        'ends_at' => $end->greaterThan($start) ? $end : $start->copy()->addDay(),
+                        'starts_at' => $start->format('Y-m-d'),
+                        'ends_at' => ($end->greaterThan($start) ? $end : $start->copy()->addDay())->format('Y-m-d'),
                     ]);
                 }),
         ];

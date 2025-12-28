@@ -26,9 +26,10 @@ use Adultdate\Schedule\Concerns\CanRefreshCalendar;
 use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
 use Adultdate\Schedule\ValueObjects\FetchInfo;
 
-use Adultdate\Schedule\Contracts\HasCalendar;
+use Filament\Actions\Action;
+use Filament\Schemas\Schema;
 
-final class CalendarWidget extends FullCalendarWidget implements HasCalendar
+final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\Contracts\HasCalendar
 {
     use HasHeaderActions, InteractsWithCalendar, CanBeConfigured, InteractsWithRawJS, HasSchema, CanRefreshCalendar, InteractsWithEventRecord;
     public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
@@ -41,7 +42,7 @@ final class CalendarWidget extends FullCalendarWidget implements HasCalendar
 
     protected static string $viewIdentifier = 'calendar-widget';
 
-   // protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function getModel(): string
     {
@@ -126,7 +127,8 @@ final class CalendarWidget extends FullCalendarWidget implements HasCalendar
     {
         return [
             Actions\CreateAction::make()
-                ->mountUsing(function ($form, array $arguments) {
+                ->name('create')
+                ->mountUsing(function (Action $action, Schema $schema, array $arguments): void {
                     // Accept either Form or Schema-like objects
                     $values = [
                         'start' => $arguments['start'] ?? null,
@@ -158,27 +160,7 @@ final class CalendarWidget extends FullCalendarWidget implements HasCalendar
                         }
                     }
 
-                    if ($form !== null) {
-                        // If it's a Form instance
-                        if ($form instanceof \Filament\Schemas\Components\Form) {
-                            $form->fill($values);
-
-                            return;
-                        }
-
-                        // Fallback: try fill or fillPartially
-                        if (is_object($form) && method_exists($form, 'fill')) {
-                            $form->fill($values);
-
-                            return;
-                        }
-
-                        if (is_object($form) && method_exists($form, 'fillPartially')) {
-                            $form->fillPartially($values, array_keys($values));
-
-                            return;
-                        }
-                    }
+                    $schema->fill($values);
                 })
                 ->mutateFormDataUsing(function (array $data): array {
                     // Set user_id to current user

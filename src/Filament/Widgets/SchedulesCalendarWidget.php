@@ -24,17 +24,23 @@ use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithEvents;
 use Adultdate\Schedule\Concerns\HasSchema;
 use Adultdate\Schedule\Concerns\CanRefreshCalendar;
 use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
+use Adultdate\Schedule\ValueObjects\DateClickInfo;
+use Adultdate\Schedule\ValueObjects\NoEventsClickInfo;
 
 use Adultdate\Schedule\Contracts\HasCalendar;
 
 class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 {
-    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS, InteractsWithEvents, HasSchema, CanRefreshCalendar, InteractsWithEventRecord {
+    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS, InteractsWithEvents, HasSchema, CanRefreshCalendar, InteractsWithEventRecord, \Adultdate\Schedule\Concerns\InteractsWithCalendar {
         // Prefer the contract-compatible refreshRecords (chainable) from CanRefreshCalendar
         CanRefreshCalendar::refreshRecords insteadof InteractsWithEvents;
 
         // Keep the frontend-only refresh available under an alias if needed
         InteractsWithEvents::refreshRecords as refreshRecordsFrontend;
+
+        // When both traits define the same handler, prefer the widget-centric implementation
+        InteractsWithEvents::onEventClick insteadof \Adultdate\Schedule\Concerns\InteractsWithCalendar;
+        InteractsWithEvents::onDateSelect insteadof \Adultdate\Schedule\Concerns\InteractsWithCalendar;
     }
     /**
      * Return FullCalendar config overrides for this widget.
@@ -42,6 +48,22 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
     protected static bool $isDiscovered = false;
 
     protected static ?int $sort = 3;
+
+    // Enable clicking/selecting/no-events click by overriding the trait-enabled checks
+    public function isDateClickEnabled(): bool
+    {
+        return true;
+    }
+
+    public function isDateSelectEnabled(): bool
+    {
+        return true;
+    }
+
+    public function isNoEventsClickEnabled(): bool
+    {
+        return true;
+    }
 
     public function config(): array
     {
@@ -75,30 +97,49 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         return [
             \Adultdate\Schedule\Actions\CreateAction::make()
                 ->mountUsing(function ($formOrSchema, array $arguments) {
-                    if (! isset($arguments['start'])) {
+                    // Reset form state to avoid leftover values from previous mounts
+                    if ($formOrSchema instanceof \Filament\Schemas\Schema) {
+                        $formOrSchema->fill([]);
+                    } elseif (is_object($formOrSchema) && method_exists($formOrSchema, 'fill')) {
+                        $formOrSchema->fill([]);
+                    }
+
+                    // If no date was provided, mount empty defaults and return
+                    if (! isset($arguments['start']) && ! isset($arguments['start_date'])) {
                         return;
                     }
 
                     $timezone = \Adultdate\Schedule\SchedulePlugin::make()->getTimezone();
 
-                    $start = \Carbon\Carbon::parse($arguments['start'], $timezone);
+                    // Prefer explicit date/time arguments when present
+                    if (isset($arguments['start_date']) || isset($arguments['start_time'])) {
+                        $values = [
+                            'start_date' => $arguments['start_date'] ?? null,
+                            'start_time' => $arguments['start_time'] ?? null,
+                            'end_date' => $arguments['end_date'] ?? null,
+                            'end_time' => $arguments['end_time'] ?? null,
+                            // Ensure metadata key exists so the action schema can entangle safely
+                            'metadata' => $arguments['metadata'] ?? [],
+                        ];
+                    } else {
+                        $start = \Carbon\Carbon::parse($arguments['start'], $timezone);
 
-                    $values = [
-                        'start_date' => $start->format('Y-m-d'),
-                        'end_date' => isset($arguments['end']) ? \Carbon\Carbon::parse($arguments['end'], $timezone)->format('Y-m-d') : null,
-                        // Ensure metadata key exists so the action schema can entangle safely
-                        'metadata' => $arguments['metadata'] ?? [],
-                    ];
+                        $values = [
+                            'start_date' => $start->format('Y-m-d'),
+                            'end_date' => isset($arguments['end']) ? \Carbon\Carbon::parse($arguments['end'], $timezone)->format('Y-m-d') : null,
+                            'metadata' => $arguments['metadata'] ?? [],
+                        ];
 
-                    // If the selection included a time, prefill start_time/end_time
-                    if ($start->format('H:i:s') !== '00:00:00') {
-                        $values['start_time'] = $start->format('H:i');
-                    }
+                        // If the selection included a time, prefill start_time/end_time
+                        if ($start->format('H:i:s') !== '00:00:00') {
+                            $values['start_time'] = $start->format('H:i');
+                        }
 
-                    if (isset($arguments['end'])) {
-                        $end = \Carbon\Carbon::parse($arguments['end'], $timezone);
-                        if ($end->format('H:i:s') !== '00:00:00') {
-                            $values['end_time'] = $end->format('H:i');
+                        if (isset($arguments['end'])) {
+                            $end = \Carbon\Carbon::parse($arguments['end'], $timezone);
+                            if ($end->format('H:i:s') !== '00:00:00') {
+                                $values['end_time'] = $end->format('H:i');
+                            }
                         }
                     }
 
@@ -353,20 +394,35 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
      * Ensure selected date ranges mount the widget's create action with normalized ISO strings
      * so the Create modal can prefill start/end date and time reliably.
      */
-    public function onDateSelect(string $start, ?string $end, bool $allDay, ?array $view, ?array $resource): void
+    public function onDateSelect(mixed $startOrInfo, mixed $end = null, mixed $allDay = false, mixed $view = null, mixed $resource = null): void
     {
-        // Use existing timezone-aware normalization from the trait
-        [$startCarbon, $endCarbon] = $this->calculateTimezoneOffset($start, $end, $allDay);
+        // Support both the older signature (start, end, allDay, view, resource) and the
+        // new DateSelectInfo object (when called via onDateSelectJs -> the trait will pass a DateSelectInfo).
+        if ($startOrInfo instanceof \Adultdate\Schedule\ValueObjects\DateSelectInfo) {
+            $info = $startOrInfo;
 
-        // Normalize to ISO strings so downstream mountUsing receives predictable values
-        $startIso = $startCarbon->toIsoString();
-        $endIso = $endCarbon ? $endCarbon->toIsoString() : null;
+            $startIso = $info->start->toIsoString();
+            $endIso = $info->end?->toIsoString();
 
-        // Also compute separate date/time fields so they are available immediately in mounted action arguments
-        $startDate = $startCarbon->format('Y-m-d');
-        $startTime = $startCarbon->format('H:i');
-        $endDate = $endCarbon ? $endCarbon->format('Y-m-d') : null;
-        $endTime = $endCarbon ? $endCarbon->format('H:i') : null;
+            $startDate = $info->start->format('Y-m-d');
+            $startTime = $info->start->format('H:i');
+            $endDate = $info->end?->format('Y-m-d');
+            $endTime = $info->end?->format('H:i');
+
+            $allDay = $info->allDay;
+            $resource = null;
+        } else {
+            // Old signature
+            [$startCarbon, $endCarbon] = $this->calculateTimezoneOffset($startOrInfo, $end, $allDay);
+
+            $startIso = $startCarbon->toIsoString();
+            $endIso = $endCarbon ? $endCarbon->toIsoString() : null;
+
+            $startDate = $startCarbon->format('Y-m-d');
+            $startTime = $startCarbon->format('H:i');
+            $endDate = $endCarbon ? $endCarbon->format('Y-m-d') : null;
+            $endTime = $endCarbon ? $endCarbon->format('H:i') : null;
+        }
 
         $this->mountAction('create', [
             'type' => 'select',
@@ -381,6 +437,51 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         ]);
 
         // Ensure the modal syncs to open on the frontend
+        $newIndex = max(0, count($this->mountedActions) - 1);
+        $this->dispatch('sync-action-modals', id: $this->getId(), newActionNestingIndex: $newIndex);
+    }
+
+    /**
+     * Handle a single date click (not a range selection) to open the Create modal prefilled.
+     */
+    public function onDateClick(DateClickInfo $info): void
+    {
+        $startIso = $info->date->toIsoString();
+        $allDay = $info->allDay;
+
+        [$startCarbon, $endCarbon] = $this->calculateTimezoneOffset($startIso, null, $allDay);
+
+        $startIso = $startCarbon->toIsoString();
+        $startDate = $startCarbon->format('Y-m-d');
+        $startTime = $startCarbon->format('H:i');
+
+        $this->mountAction('create', [
+            'type' => 'click',
+            'start' => $startIso,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'allDay' => $allDay,
+            'resource' => null,
+        ]);
+
+        // Ensure the modal syncs to open on the frontend
+        $newIndex = max(0, count($this->mountedActions) - 1);
+        $this->dispatch('sync-action-modals', id: $this->getId(), newActionNestingIndex: $newIndex);
+    }
+
+    /**
+     * Date selection handled by `onDateSelect(mixed ...)` above (supports both legacy signature and DateSelectInfo).
+     */
+
+    /**
+     * If the calendar supports clicking empty space, allow creating a schedule without a preset date/time.
+     */
+    public function onNoEventsClick(NoEventsClickInfo $info): void
+    {
+        $this->mountAction('create', [
+            'type' => 'click',
+        ]);
+
         $newIndex = max(0, count($this->mountedActions) - 1);
         $this->dispatch('sync-action-modals', id: $this->getId(), newActionNestingIndex: $newIndex);
     }
@@ -419,6 +520,17 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         }
 
         return $events;
+    }
+
+    /**
+     * Adapter for Guava calendar's `getEvents` contract which expects a FetchInfo VO.
+     */
+    protected function getEvents(\Adultdate\Schedule\ValueObjects\FetchInfo $info): \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Builder|array
+    {
+        return $this->fetchEvents([
+            'start' => $info->start->toIsoString(),
+            'end' => $info->end->toIsoString(),
+        ]);
     }
 
     public function eventAssetUrl(): string

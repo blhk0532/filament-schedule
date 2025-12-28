@@ -25,17 +25,31 @@ trait HasEvents
         }
 
         return $events
-            ->map(function (Builder | Collection | Eventable | CalendarEvent $event) use ($info): array {
+            ->map(function (mixed $event) use ($info): array {
+                // If this is an Eventable model convert to CalendarEvent
                 if ($event instanceof Eventable) {
                     $event = $event->toCalendarEvent();
                 }
 
-                return $event->toCalendarObject(
-                    data_get($info, 'tzOffset'),
-                    $this->shouldUseFilamentTimezone()
-                );
+                // If it's already a CalendarEvent value object, use it
+                if ($event instanceof CalendarEvent) {
+                    return $event->toCalendarObject(
+                        data_get($info, 'tzOffset'),
+                        $this->shouldUseFilamentTimezone()
+                    );
+                }
+
+                // Fallback: try to adapt Eloquent models that expose the same methods
+                if (is_object($event) && method_exists($event, 'toCalendarObject')) {
+                    return $event->toCalendarObject(
+                        data_get($info, 'tzOffset'),
+                        $this->shouldUseFilamentTimezone()
+                    );
+                }
+
+                // As a last resort, cast to array to avoid type errors
+                return (array) $event;
             })
-            ->all()
-        ;
+            ->all();
     }
 }
