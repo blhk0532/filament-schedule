@@ -2,7 +2,6 @@
 
 namespace Adultdate\Schedule\Filament\Actions;
 
-use Filament\Schemas\Schema;
 use Adultdate\Schedule\Contracts\HasCalendar;
 
 class ViewAction extends \Filament\Actions\ViewAction
@@ -21,11 +20,6 @@ class ViewAction extends \Filament\Actions\ViewAction
                 }
                 return true;
             })
-            ->schema(
-                fn (ViewAction $action, Schema $schema, HasCalendar $livewire) => $livewire
-                    ->getInfolistSchemaForModel($schema, $action->getModel())
-                    ->record($livewire->getEventRecord()),
-            )
             ->cancelParentActions()
         ;
     }
