@@ -3,12 +3,12 @@
 namespace Adultdate\Schedule\Models;
 
 use App\Models\User;
-use Guava\Calendar\Contracts\Eventable;
-use Guava\Calendar\ValueObjects\CalendarEvent;
+use Adultdate\Schedule\Contracts\Eventable;
+use Adultdate\Schedule\ValueObjects\CalendarEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
+ 
 class Meeting extends Model implements Eventable
 {
     /** @use HasFactory<\Database\Factories\MeetingFactory> */
