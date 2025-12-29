@@ -14,6 +14,13 @@ class EditAction extends \Filament\Actions\EditAction
         $this
             ->model(fn (HasCalendar $livewire) => $livewire->getEventModel())
             ->record(fn (HasCalendar $livewire) => $livewire->getEventRecord())
+            ->before(function (HasCalendar $livewire) {
+                if (! $livewire->getEventRecord()) {
+                    $livewire->refreshRecords();
+                    return false; // Prevent the action
+                }
+                return true;
+            })
             ->schema(
                 fn (EditAction $action, Schema $schema, HasCalendar $livewire): Schema => $livewire
                     ->getFormSchemaForModel($schema, $action->getModel())

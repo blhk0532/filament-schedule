@@ -20,15 +20,15 @@ class SchedulesTable
                         return '-';
                     }
 
-                    $details = ucfirst($state);
+                    $details = ucfirst($state->value);
 
-                    if ($state === 'monthly' && ($record->frequency_config['days_of_month'] ?? null)) {
-                        $days = implode(',', $record->frequency_config['days_of_month']);
+                    if ($state->value === 'monthly' && ($record->frequency_config->days_of_month ?? null)) {
+                        $days = implode(',', $record->frequency_config->days_of_month);
                         $details .= " (days: {$days})";
                     }
 
-                    if (($record->frequency_config['days'] ?? null) && is_array($record->frequency_config['days'])) {
-                        $days = implode(',', $record->frequency_config['days']);
+                    if (($record->frequency_config->days ?? null) && is_array($record->frequency_config->days)) {
+                        $days = implode(',', $record->frequency_config->days);
                         $details .= " (weekdays: {$days})";
                     }
 

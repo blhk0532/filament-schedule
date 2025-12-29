@@ -19,6 +19,19 @@ class CreateAction extends \Filament\Actions\CreateAction
                 fn (Schema $schema, CreateAction $action, HasCalendar $livewire) => $livewire
                     ->getFormSchemaForModel($schema, $action->getModel())
             )
+            ->mutateFormDataUsing(function (array $data): array {
+                $model = $this->getModel();
+                if ($model && is_a($model, \Adultdate\Schedule\Models\Schedule::class, true)) {
+                    if (! isset($data['schedulable_type']) || ! isset($data['schedulable_id'])) {
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user) {
+                            $data['schedulable_type'] = $user::class;
+                            $data['schedulable_id'] = $user->id;
+                        }
+                    }
+                }
+                return $data;
+            })
             // Ensure forms are prefilled when the action is mounted programmatically
             ->mountUsing(function ($formOrSchema, array $arguments) {
                 // Reset form state to avoid leftover values from previous mounts
@@ -121,6 +134,12 @@ class CreateAction extends \Filament\Actions\CreateAction
                             // Ensure metadata key exists (as JSON string for CodeEditor)
                             'metadata' => $meta,
                         ];
+
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user) {
+                            $values['schedulable_type'] = $user::class;
+                            $values['schedulable_id'] = $user->id;
+                        }
                     } else {
                         $start = \Carbon\Carbon::parse($arguments['start'], $timezone);
 
@@ -129,6 +148,12 @@ class CreateAction extends \Filament\Actions\CreateAction
                             'end_date' => isset($arguments['end']) ? \Carbon\Carbon::parse($arguments['end'], $timezone)->format('Y-m-d') : null,
                             'metadata' => $arguments['metadata'] ?? [],
                         ];
+
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user) {
+                            $values['schedulable_type'] = $user::class;
+                            $values['schedulable_id'] = $user->id;
+                        }
 
                         if ($start->format('H:i:s') !== '00:00:00') {
                             $values['start_time'] = $start->format('H:i');

@@ -41,7 +41,8 @@ trait InteractsWithEventRecord
             return $this->eventRecord = $record;
         }
 
-        throw (new ModelNotFoundException)->setModel($model, [$key]);
+        // Return null if record not found, instead of throwing
+        return $this->eventRecord = null;
     }
 
     protected function resolveEventRecordRouteBinding(string $model, mixed $key): ?Model
