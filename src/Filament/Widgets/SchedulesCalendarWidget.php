@@ -31,7 +31,7 @@ use Adultdate\Schedule\Contracts\HasCalendar;
 
 class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 {
-    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS, InteractsWithEvents, HasSchema, CanRefreshCalendar, InteractsWithEventRecord, \Adultdate\Schedule\Concerns\InteractsWithCalendar {
+    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS, InteractsWithEvents, HasSchema, CanRefreshCalendar, InteractsWithEventRecord, \Adultdate\Schedule\Concerns\InteractsWithCalendar, \Adultdate\Schedule\Concerns\HasOptions {
         // Prefer the contract-compatible refreshRecords (chainable) from CanRefreshCalendar
         CanRefreshCalendar::refreshRecords insteadof InteractsWithEvents;
 
@@ -41,6 +41,9 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         // When both traits define the same handler, prefer the widget-centric implementation
         InteractsWithEvents::onEventClick insteadof \Adultdate\Schedule\Concerns\InteractsWithCalendar;
         InteractsWithEvents::onDateSelect insteadof \Adultdate\Schedule\Concerns\InteractsWithCalendar;
+
+        // Resolve getOptions collision: prefer HasOptions' getOptions which merges config and options
+        \Adultdate\Schedule\Concerns\HasOptions::getOptions insteadof CanBeConfigured;
     }
     /**
      * Return FullCalendar config overrides for this widget.
@@ -569,11 +572,17 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
         $start = Carbon::parse($info['start']);
         $end = Carbon::parse($info['end']);
 
+        $user = filament()->auth()->user();
+
         $events = [];
 
         // Iterate day by day and collect schedule periods
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            $schedules = Schedule::forDate($date->format('Y-m-d'))->where('is_active', true)->get();
+            $schedules = Schedule::forDate($date->format('Y-m-d'))
+                ->where('is_active', true)
+                ->where('schedulable_type', $user::class)
+                ->where('schedulable_id', $user->id)
+                ->get();
 
             foreach ($schedules as $schedule) {
                 foreach ($schedule->periods()->forDate($date->format('Y-m-d'))->available()->get() as $period) {

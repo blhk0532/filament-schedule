@@ -13,11 +13,16 @@ trait CanBeConfigured
         return [];
     }
 
-    protected function getConfig(): array
+    public function getConfig(): array
     {
         return array_merge_recursive_unique(
             SchedulePlugin::get()->getConfig(),
             $this->config(),
         );
+    }
+
+    public function getOptions(): array
+    {
+        return $this->getConfig();
     }
 }

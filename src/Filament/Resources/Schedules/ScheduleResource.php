@@ -30,7 +30,8 @@ class ScheduleResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return SchedulesTable::configure($table);
+        return SchedulesTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with('periods'));
     }
 
     public static function getRelations(): array

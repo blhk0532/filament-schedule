@@ -2,6 +2,7 @@
 
 namespace Adultdate\Schedule\Filament\Widgets;
 
+use Adultdate\Schedule\Enums\CalendarViewType;
 use Adultdate\Schedule\Enums\Priority;
 use Adultdate\Schedule\Models\Meeting;
 use Adultdate\Schedule\Models\Sprint;
@@ -24,13 +25,15 @@ use Filament\Schemas\Schema;
 
 final class EventCalendar extends CalendarWidget
 {
- 
+    protected static string $viewIdentifier = 'adultdate-schedule::calendar-widget';
 
     protected string|HtmlString|bool|null $heading = 'Calendar';
 
     protected bool $eventClickEnabled = true;
 
     protected bool $eventDragEnabled = true;
+
+    protected CalendarViewType $calendarView = CalendarViewType::DayGridMonth;
 
     protected bool $eventResizeEnabled = true;
 
@@ -40,6 +43,24 @@ final class EventCalendar extends CalendarWidget
 
     protected static ?int $sort = 1;
 
+    public function getView(): string
+    {
+        return 'adultdate-schedule::calendar-widget';
+    }
+
+    public function getOptions(): array
+    {
+        return $this->getConfig();
+    }
+
+    public function getConfig(): array
+    {
+        return array_replace_recursive(
+            $this->config(),
+            \Adultdate\Schedule\SchedulePlugin::get()->getConfig(),
+        );
+    }
+
     public function config(): array
     {
         $settings = CalendarSettings::where('user_id', Auth::id())->first();
@@ -48,22 +69,27 @@ final class EventCalendar extends CalendarWidget
         $openingEnd = $settings->opening_hour_end?->format('H:i:s') ?? '17:00:00';
 
         $config = [
-            'initialView' => 'timeGridWeek',
+            'view' => 'dayGridMonth',
             'headerToolbar' => [
-                'left' => 'prev,next today,timeGridWeek,timeGridDay',
-                'center' => 'title',
-                'right' => 'dayGridMonth,listWeek',
+                'start' => 'title',
+                'center' => '',
+                'end' => 'dayGridMonth,timeGridWeek,timeGridDay, today prev,next',
             ],
             'nowIndicator' => true,
             'views' => [
                 'timeGridDay' => [
                     'slotMinTime' => $openingStart,
-                    'slotMaxTime' => $openingEnd,
+                    'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
                 ],
                 'timeGridWeek' => [
                     'slotMinTime' => $openingStart,
-                    'slotMaxTime' => $openingEnd,
+                    'slotMaxTime' => '24:00:00',
+                    'slotHeight' => 60,
+                ],
+                'timeGridMonth' => [
+                    'slotMinTime' => $openingStart,
+                    'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
                 ],
             ],
@@ -72,10 +98,13 @@ final class EventCalendar extends CalendarWidget
         return $config;
     }
 
+
     protected function getEvents(FetchInfo $info): Collection|array|Builder
     {
         $start = $info->start->toMutable()->startOfDay();
         $end = $info->end->toMutable()->endOfDay();
+
+        \Illuminate\Support\Facades\Log::info('getEvents called', ['start' => $start, 'end' => $end]);
 
         $meetings = Meeting::query()
             ->withCount('users')
@@ -88,9 +117,14 @@ final class EventCalendar extends CalendarWidget
             ->whereDate('starts_at', '<=', $end)
             ->get();
 
-        return collect()
+        $events = collect()
             ->push(...$meetings)
             ->push(...$sprints);
+
+        \Illuminate\Support\Facades\Log::info('Events returned', ['count' => $events->count()]);
+
+        return $events;
+
     }
 
     protected function getEventClickContextMenuActions(): array

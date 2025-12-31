@@ -29,9 +29,11 @@ use Adultdate\Schedule\ValueObjects\FetchInfo;
 use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 
-final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\Contracts\HasCalendar
+class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\Contracts\HasCalendar
 {
-    use HasHeaderActions, InteractsWithCalendar, CanBeConfigured, InteractsWithRawJS, HasSchema, CanRefreshCalendar, InteractsWithEventRecord;
+    use HasHeaderActions, InteractsWithCalendar, CanBeConfigured, InteractsWithRawJS, HasSchema, CanRefreshCalendar, InteractsWithEventRecord {
+        InteractsWithCalendar::getOptions insteadof CanBeConfigured;
+    }
     public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
 
     protected static ?int $sort = 2;
@@ -40,7 +42,7 @@ final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Sche
 
     protected static ?string $title = 'calendar';
 
-    protected static string $viewIdentifier = 'calendar-widget';
+    protected static string $viewIdentifier = 'adultdate-schedule::calendar-widget';
 
     protected int|string|array $columnSpan = 'full';
 
@@ -66,13 +68,17 @@ final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Sche
             'nowIndicator' => true,
             'views' => [
                 'timeGridDay' => [
-                    'slotMinTime' => $openingStart,
-                    'slotMaxTime' => $openingEnd,
+                //    'slotMinTime' => $openingStart,
+                //    'slotMaxTime' => $openingEnd,
+                    'slotMinTime' => '00:00:00',
+                    'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
                 ],
                 'timeGridWeek' => [
-                    'slotMinTime' => $openingStart,
-                    'slotMaxTime' => $openingEnd,
+                //    'slotMinTime' => $openingStart,
+                //    'slotMaxTime' => $openingEnd,
+                    'slotMinTime' => '00:00:00',
+                    'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
                 ],
             ],
@@ -117,9 +123,19 @@ final class CalendarWidget extends FullCalendarWidget implements \Adultdate\Sche
         $start = $info->start->toMutable()->startOfDay();
         $end = $info->end->toMutable()->endOfDay();
 
+        $userId = filament()->auth()->id() ?? Auth::id();
+
+        if (!$userId) {
+            $user = filament()->auth()->user();
+            if ($user) {
+                $userId = $user->id;
+            }
+        }
+
         return \Adultdate\Schedule\Models\CalendarEvent::query()
-            ->whereDate('ends_at', '>=', $start)
-            ->whereDate('starts_at', '<=', $end)
+            ->where('user_id', $userId)
+            ->whereDate('end', '>=', $start)
+            ->whereDate('start', '<=', $end)
             ->get();
     }
 

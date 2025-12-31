@@ -2,7 +2,7 @@
 
 namespace Adultdate\Schedule\Filament\Resources\Schedules\Tables;
 
-use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -34,7 +34,7 @@ class SchedulesTable
 
                     return $details;
                 }),
-                BooleanColumn::make('is_active')->label('Active')->sortable(),
+                IconColumn::make('is_active')->label('Active')->boolean()->sortable(),
                 TextColumn::make('start_date')->label('Start')->date()->sortable(),
                 TextColumn::make('end_date')->label('End')->date()->sortable(),
                 TextColumn::make('total_duration')->label('Total (min)')->sortable(),

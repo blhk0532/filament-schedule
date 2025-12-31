@@ -12,7 +12,7 @@ abstract class CalendarWidget extends Widget implements HasActions, HasCalendar,
 {
     use InteractsWithCalendar;
 
-    protected string $view = 'adultdate-schedule::widgets.calendar-widget';
+    protected string $view = 'adultdate-schedule::calendar-widget';
 
     protected int | string | array $columnSpan = 'full';
 

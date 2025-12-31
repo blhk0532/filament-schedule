@@ -11,7 +11,7 @@ trait HasOptions
      */
     public function getOptions(): array
     {
-        return $this->options;
+        return array_merge($this->getConfig() ?? [], $this->options);
     }
 
     public function setOption(string $key, mixed $value): static

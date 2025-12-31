@@ -71,8 +71,8 @@ class SchedulePlugin implements Plugin
             ->widgets([
                 SchedulesCalendarWidget::class,
                 CalendarWidget::class,
-                EventCalendar::class,
-                FullCalendarWidget::class,
+            //    EventCalendar::class,
+            //    FullCalendarWidget::class,
             ]);
     }
 

@@ -90,6 +90,7 @@ class FullCalendarWidget extends Widget implements HasForms, HasActions
 
     protected function viewAction(): \Filament\Actions\Action
     {
-        return \Filament\Actions\Action::make('view');
+        // Use a non-colliding action name so it doesn't overwrite the widget's `$view` property
+        return \Filament\Actions\Action::make('viewEvent');
     }
 }

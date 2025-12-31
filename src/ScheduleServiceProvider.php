@@ -31,7 +31,7 @@ class ScheduleServiceProvider extends PackageServiceProvider
                     ->askToRunMigrations();
             });
     }
-
+ 
     public function packageBooted(): void
     {
         /* 
@@ -88,6 +88,15 @@ class ScheduleServiceProvider extends PackageServiceProvider
                 ],
                 package: 'adultdate-schedule'
             );
+        }
+
+        // Ensure Livewire can resolve package widgets by their dotted name (e.g. adultdate.schedule.filament.widgets.calendar-widget)
+        if (class_exists('\Livewire\Livewire')) {
+            // Register explicit aliases that match the dotted names Livewire expects
+            \Livewire\Livewire::component('adultdate.schedule.filament.widgets.calendar-widget', \Adultdate\Schedule\Filament\Widgets\CalendarWidget::class);
+            \Livewire\Livewire::component('adultdate.schedule.filament.widgets.schedules-calendar-widget', \Adultdate\Schedule\Filament\Widgets\SchedulesCalendarWidget::class);
+            \Livewire\Livewire::component('adultdate.schedule.filament.widgets.full-calendar-widget', \Adultdate\Schedule\Filament\Widgets\FullCalendarWidget::class);
+            \Livewire\Livewire::component('adultdate.schedule.filament.widgets.event-calendar', \Adultdate\Schedule\Filament\Widgets\EventCalendar::class);
         }
     }
 }

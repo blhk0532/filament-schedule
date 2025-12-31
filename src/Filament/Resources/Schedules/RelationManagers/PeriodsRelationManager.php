@@ -8,7 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Adultdate\Schedule\Models\SchedulePeriod;
@@ -39,7 +39,7 @@ class PeriodsRelationManager extends RelationManager
                 TextColumn::make('date')->date()->sortable(),
                 TextColumn::make('start_time'),
                 TextColumn::make('end_time'),
-                BooleanColumn::make('is_available'),
+                IconColumn::make('is_available')->boolean(),
             ])
             ->defaultSort('date', 'desc');
     }

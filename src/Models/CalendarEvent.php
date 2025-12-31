@@ -29,6 +29,26 @@ class CalendarEvent extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function toCalendarObject(int $timezoneOffset = 0, bool $useFilamentTimezone = false): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'start' => $useFilamentTimezone
+                ? $this->start?->setTimezone(config('app.timezone', 'UTC'))->toIso8601String()
+                : $this->start?->utcOffset($timezoneOffset)->toIso8601String(),
+            'end' => $useFilamentTimezone
+                ? $this->end?->setTimezone(config('app.timezone', 'UTC'))->toIso8601String()
+                : $this->end?->utcOffset($timezoneOffset)->toIso8601String(),
+            'allDay' => $this->all_day,
+            'backgroundColor' => $this->background_color,
+            'extendedProps' => [
+                'description' => $this->description,
+                'user_id' => $this->user_id,
+            ],
+        ];
+    }
+
     /**
      * Return header widgets for the page so Filament will render them
      * in the page header area (the framework filters by canView()).
