@@ -71,11 +71,11 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
     public function config(): array
     {
         return [
-            'initialView' => 'timeGridWeek',
+            'initialView' => 'timeGridDay',
             'headerToolbar' => [
                 'left' => 'prev,next today',
-                'center' => '',
-                'right' => 'dayGridMonth,timeGridWeek,timeGridDay listWeek',
+                'center' => 'title',
+                'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
             ],
             // Make calendar interactive
             'editable' => true,
@@ -87,8 +87,8 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
             'nowIndicatorSnap' => 'auto',
 
             // sensible slot bounds for timeGrid views
-            'slotMinTime' => '07:00:00',
-            'slotMaxTime' => '17:00:00',
+            'slotMinTime' => '06:00:00',
+            'slotMaxTime' => '22:00:00',
         ];
     }
 
@@ -201,20 +201,9 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 
                     return $data;
                 })
-                ->action(function (array $data) {
-                    // Resolve model class: prefer explicit widget model, fall back to payload
-                    $model = null;
-                    if (method_exists($this, 'getModel')) {
-                        $model = $this->getModel();
-                    }
-                    $model = $model ?? ($data['model'] ?? null);
-
-                    if (! $model) {
-                        throw new \RuntimeException('No model available for CreateAction handler');
-                    }
-
+                ->using(function (array $data, string $model) {
                     // Use the model to create the primary Schedule
-                    $record = $model::create(Arr::except($data, ['initial_period', 'start_time', 'end_time', 'model']));
+                    $record = $model::create(Arr::except($data, ['initial_period', 'start_time', 'end_time']));
 
                     // Determine period data from initial_period or form fields
                     if (isset($data['initial_period'])) {
@@ -237,15 +226,6 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                             'end_time' => $endTime,
                             'is_available' => true,
                         ]);
-
-                        // Ensure schedule date range includes the period date
-                        if ($record->start_date > $created->date) {
-                            $record->start_date = $created->date;
-                        }
-                        if (!$record->end_date || $record->end_date < $created->date) {
-                            $record->end_date = $created->date;
-                        }
-                        $record->save();
 
                     } catch (\Throwable $e) {
                         // Log to the app logger so it appears in usual channels during tests and runtime
@@ -365,8 +345,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                 $timezone = \Adultdate\Schedule\SchedulePlugin::make()->getTimezone();
 
                 $start = \Carbon\Carbon::parse($event['start'], $timezone);
-                $newDate = $start->format('Y-m-d');
-                $period->date = $newDate;
+                $period->date = $start->format('Y-m-d');
                 $period->start_time = $start->format('H:i');
 
                 if (isset($event['end'])) {
@@ -375,23 +354,6 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                 }
 
                 $period->save();
-
-                // Update schedule date range if necessary
-                $schedule = $period->schedule;
-                if ($schedule) {
-                    $needsUpdate = false;
-                    if (!$schedule->start_date || $newDate < $schedule->start_date) {
-                        $schedule->start_date = $newDate;
-                        $needsUpdate = true;
-                    }
-                    if (!$schedule->end_date || $newDate > $schedule->end_date) {
-                        $schedule->end_date = $newDate;
-                        $needsUpdate = true;
-                    }
-                    if ($needsUpdate) {
-                        $schedule->save();
-                    }
-                }
 
                 // Optionally dispatch an event to refresh calendar
                 $this->refreshRecords();
@@ -417,8 +379,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 
                 if (isset($event['start'])) {
                     $start = \Carbon\Carbon::parse($event['start'], $timezone);
-                    $newDate = $start->format('Y-m-d');
-                    $period->date = $newDate;
+                    $period->date = $start->format('Y-m-d');
                     $period->start_time = $start->format('H:i');
                 }
 
@@ -428,23 +389,6 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                 }
 
                 $period->save();
-
-                // Update schedule date range if necessary
-                $schedule = $period->schedule;
-                if ($schedule && isset($newDate)) {
-                    $needsUpdate = false;
-                    if (!$schedule->start_date || $newDate < $schedule->start_date) {
-                        $schedule->start_date = $newDate;
-                        $needsUpdate = true;
-                    }
-                    if (!$schedule->end_date || $newDate > $schedule->end_date) {
-                        $schedule->end_date = $newDate;
-                        $needsUpdate = true;
-                    }
-                    if ($needsUpdate) {
-                        $schedule->save();
-                    }
-                }
 
                 $this->refreshRecords();
             }
@@ -630,11 +574,6 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
 
         $user = filament()->auth()->user();
 
-        // If no user is authenticated, return empty array
-        if (!$user) {
-            return [];
-        }
-
         $events = [];
 
         // Iterate day by day and collect schedule periods
@@ -661,6 +600,7 @@ class SchedulesCalendarWidget extends FullCalendarWidget implements HasCalendar
                 }
             }
         }
+
         return $events;
     }
 

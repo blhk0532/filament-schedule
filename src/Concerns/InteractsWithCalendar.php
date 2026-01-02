@@ -47,6 +47,13 @@ trait InteractsWithCalendar
 
     public function mountAction(string $name, array $arguments = [], array $context = []): mixed
     {
+        // If the action is being mounted from inside a nested schema component (e.g. a repeater "Add"
+        // button), do not override its arguments with calendar context. Let Filament handle it so we
+        // don't clear the form state while adding items.
+        if (isset($context['schemaComponent'])) {
+            return $this->baseMountAction($name, $arguments, $context);
+        }
+
         $raw = $this->getRawCalendarContextData() ?? [];
 
         // Merge provided arguments with raw calendar context

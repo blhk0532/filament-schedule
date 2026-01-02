@@ -132,6 +132,11 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
             }
         }
 
+        // If no user is authenticated, return empty collection
+        if (!$userId) {
+            return collect();
+        }
+
         return \Adultdate\Schedule\Models\CalendarEvent::query()
             ->where('user_id', $userId)
             ->whereDate('end', '>=', $start)

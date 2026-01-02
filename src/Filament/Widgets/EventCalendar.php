@@ -65,8 +65,8 @@ final class EventCalendar extends CalendarWidget
     {
         $settings = CalendarSettings::where('user_id', Auth::id())->first();
 
-        $openingStart = $settings->opening_hour_start?->format('H:i:s') ?? '09:00:00';
-        $openingEnd = $settings->opening_hour_end?->format('H:i:s') ?? '17:00:00';
+        $openingStart = $settings?->opening_hour_start?->format('H:i:s') ?? '09:00:00';
+        $openingEnd = $settings?->opening_hour_end?->format('H:i:s') ?? '17:00:00';
 
         $config = [
             'view' => 'dayGridMonth',
@@ -181,6 +181,7 @@ final class EventCalendar extends CalendarWidget
                     }
 
                     $schema->fill([
+                        'title' => '',
                         'priority' => Priority::Medium->value,
                         'starts_at' => $start->format('Y-m-d'),
                         'ends_at' => ($end->greaterThan($start) ? $end : $start->copy()->addDay())->format('Y-m-d'),
