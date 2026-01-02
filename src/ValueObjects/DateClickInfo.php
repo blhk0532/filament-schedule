@@ -2,9 +2,9 @@
 
 namespace Adultdate\Schedule\ValueObjects;
 
-use Carbon\CarbonImmutable;
 use Adultdate\Schedule\Contracts\ContextualInfo;
 use Adultdate\Schedule\Enums\Context;
+use Carbon\CarbonImmutable;
 
 use function Adultdate\Schedule\utc_to_user_local_time;
 

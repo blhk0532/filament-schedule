@@ -2,11 +2,11 @@
 
 namespace Adultdate\Schedule\Filament;
 
+use Adultdate\Schedule\Concerns\InteractsWithCalendar;
+use Adultdate\Schedule\Contracts\HasCalendar;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
-use Adultdate\Schedule\Concerns\InteractsWithCalendar;
-use Adultdate\Schedule\Contracts\HasCalendar;
 
 abstract class CalendarWidget extends Widget implements HasActions, HasCalendar, HasSchemas
 {

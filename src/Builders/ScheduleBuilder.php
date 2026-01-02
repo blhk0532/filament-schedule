@@ -2,9 +2,6 @@
 
 namespace Adultdate\Schedule\Builders;
 
-use Carbon\Carbon;
-use Carbon\CarbonInterface;
-use Illuminate\Database\Eloquent\Model;
 use Adultdate\Schedule\Data\AnnuallyFrequencyConfig;
 use Adultdate\Schedule\Data\BiMonthlyFrequencyConfig;
 use Adultdate\Schedule\Data\BiWeeklyFrequencyConfig;
@@ -18,6 +15,9 @@ use Adultdate\Schedule\Enums\Frequency;
 use Adultdate\Schedule\Enums\ScheduleTypes;
 use Adultdate\Schedule\Models\Schedule;
 use Adultdate\Schedule\Services\ScheduleService;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Model;
 
 class ScheduleBuilder
 {
@@ -62,7 +62,7 @@ class ScheduleBuilder
     /**
      * Set the start date.
      */
-    public function from(CarbonInterface|string $startDate): self
+    public function from(CarbonInterface | string $startDate): self
     {
         $this->attributes['start_date'] = $startDate instanceof CarbonInterface
             ? $startDate->toDateString()
@@ -74,7 +74,7 @@ class ScheduleBuilder
     /**
      * Alias of from()
      */
-    public function on(CarbonInterface|string $startDate): self
+    public function on(CarbonInterface | string $startDate): self
     {
         return $this->from($startDate);
     }
@@ -82,7 +82,7 @@ class ScheduleBuilder
     /**
      * Set the end date.
      */
-    public function to(CarbonInterface|string|null $endDate): self
+    public function to(CarbonInterface | string | null $endDate): self
     {
         $this->attributes['end_date'] = $endDate instanceof CarbonInterface
             ? $endDate->toDateString()
@@ -98,7 +98,8 @@ class ScheduleBuilder
     {
         $this
             ->from("$year-01-01")
-            ->to("$year-12-31");
+            ->to("$year-12-31")
+        ;
 
         return $this;
     }
@@ -106,7 +107,7 @@ class ScheduleBuilder
     /**
      * Set both start and end dates.
      */
-    public function between(CarbonInterface|string $start, CarbonInterface|string $end): self
+    public function between(CarbonInterface | string $start, CarbonInterface | string $end): self
     {
         return $this->from($start)->to($end);
     }
@@ -170,7 +171,7 @@ class ScheduleBuilder
     /**
      * Set schedule as bi-weekly recurring.
      */
-    public function biweekly(array $days = [], CarbonInterface|string|null $startsOn = null): self
+    public function biweekly(array $days = [], CarbonInterface | string | null $startsOn = null): self
     {
         $this->attributes['is_recurring'] = true;
         $this->attributes['frequency'] = Frequency::BIWEEKLY;
@@ -255,7 +256,7 @@ class ScheduleBuilder
     /**
      * Set custom recurring frequency.
      */
-    public function recurring(string|Frequency $frequency, array|FrequencyConfig $config = []): self
+    public function recurring(string | Frequency $frequency, array | FrequencyConfig $config = []): self
     {
         // Check if frequency is a valid enum value and convert config accordingly for backward compatibility
         if (is_string($frequency)) {

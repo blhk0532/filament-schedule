@@ -42,7 +42,8 @@ class SprintForm
                             ->rule('after_or_equal:starts_at'),
                     ])
                     ->columns(2),
-            ]);
+            ])
+        ;
     }
 
     /**
@@ -52,6 +53,7 @@ class SprintForm
     {
         return collect(Priority::cases())
             ->mapWithKeys(fn (Priority $priority) => [$priority->value => $priority->getLabel()])
-            ->all();
+            ->all()
+        ;
     }
 }

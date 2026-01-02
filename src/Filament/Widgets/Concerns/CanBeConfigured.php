@@ -2,9 +2,9 @@
 
 namespace Adultdate\Schedule\Filament\Widgets\Concerns;
 
-use function Adultdate\Schedule\array_merge_recursive_unique;
-
 use Adultdate\Schedule\SchedulePlugin;
+
+use function Adultdate\Schedule\array_merge_recursive_unique;
 
 trait CanBeConfigured
 {

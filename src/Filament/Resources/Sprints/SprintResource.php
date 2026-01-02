@@ -9,7 +9,6 @@ use Adultdate\Schedule\Filament\Resources\Sprints\Schemas\SprintForm;
 use Adultdate\Schedule\Filament\Resources\Sprints\Schemas\SprintInfolist;
 use Adultdate\Schedule\Filament\Resources\Sprints\Tables\SprintsTable;
 use Adultdate\Schedule\Models\Sprint;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -19,7 +18,7 @@ class SprintResource extends Resource
 {
     protected static ?string $model = Sprint::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
     {

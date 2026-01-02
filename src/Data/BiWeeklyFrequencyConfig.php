@@ -2,9 +2,9 @@
 
 namespace Adultdate\Schedule\Data;
 
+use Adultdate\Schedule\Models\Schedule;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Adultdate\Schedule\Models\Schedule;
 
 /**
  * @property-read list<string> $daysOfWeek
@@ -15,7 +15,7 @@ class BiWeeklyFrequencyConfig extends FrequencyConfig
 
     public function __construct(
         public array $days = [],
-        CarbonInterface|string|null $startsOn = null,
+        CarbonInterface | string | null $startsOn = null,
     ) {
         if ($startsOn === null) {
             return;

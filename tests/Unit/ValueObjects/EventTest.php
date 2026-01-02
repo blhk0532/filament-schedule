@@ -1,7 +1,7 @@
 <?php
 
-use Carbon\Carbon;
 use Adultdate\Schedule\ValueObjects\CalendarEvent;
+use Carbon\Carbon;
 
 beforeEach(function () {
     $this->event = CalendarEvent::make();

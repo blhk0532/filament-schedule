@@ -39,6 +39,7 @@ class SchedulesTable
                 TextColumn::make('end_date')->label('End')->date()->sortable(),
                 TextColumn::make('total_duration')->label('Total (min)')->sortable(),
             ])
-            ->defaultSort('id', 'desc');
+            ->defaultSort('id', 'desc')
+        ;
     }
 }

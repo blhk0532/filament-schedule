@@ -46,6 +46,7 @@ class MeetingForm
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
-            ]);
+            ])
+        ;
     }
 }

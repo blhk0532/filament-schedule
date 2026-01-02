@@ -9,7 +9,6 @@ use Adultdate\Schedule\Filament\Resources\Meetings\Schemas\MeetingForm;
 use Adultdate\Schedule\Filament\Resources\Meetings\Schemas\MeetingInfolist;
 use Adultdate\Schedule\Filament\Resources\Meetings\Tables\MeetingsTable;
 use Adultdate\Schedule\Models\Meeting;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -21,7 +20,7 @@ class MeetingResource extends Resource
 
     protected static ?int $sort = 2;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
     {

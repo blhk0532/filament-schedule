@@ -50,6 +50,7 @@ trait HasEvents
                 // As a last resort, cast to array to avoid type errors
                 return (array) $event;
             })
-            ->all();
+            ->all()
+        ;
     }
 }

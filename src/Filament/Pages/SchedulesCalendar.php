@@ -3,7 +3,6 @@
 namespace Adultdate\Schedule\Filament\Pages;
 
 use Adultdate\Schedule\Filament\Widgets\SchedulesCalendarWidget;
-use BackedEnum;
 use Filament\Pages\Page as BasePage;
 use UnitEnum;
 
@@ -11,11 +10,11 @@ class SchedulesCalendar extends BasePage
 {
     protected string $view = 'adultdate-schedule::pages.schedules-calendar';
 
-     protected static ?string $navigationLabel = 'Calendar';
+    protected static ?string $navigationLabel = 'Calendar';
 
-     protected static ?int $sort = 3;
+    protected static ?int $sort = 3;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     /**
      * Return header widgets for the page so Filament will render them

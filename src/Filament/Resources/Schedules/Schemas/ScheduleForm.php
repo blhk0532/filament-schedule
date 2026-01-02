@@ -2,6 +2,8 @@
 
 namespace Adultdate\Schedule\Filament\Resources\Schedules\Schemas;
 
+use Adultdate\Schedule\Enums\Frequency;
+use Adultdate\Schedule\Enums\ScheduleTypes;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language as CodeLanguage;
@@ -9,8 +11,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Adultdate\Schedule\Enums\Frequency;
-use Adultdate\Schedule\Enums\ScheduleTypes;
 
 class ScheduleForm
 {
@@ -79,6 +79,7 @@ class ScheduleForm
                     ->rules(['nullable', 'json'])
                     ->formatStateUsing(fn ($state) => $state ? json_encode($state, JSON_PRETTY_PRINT) : null)
                     ->dehydrateStateUsing(fn ($state) => $state ? json_decode($state, true) : null),
-            ]);
+            ])
+        ;
     }
 }

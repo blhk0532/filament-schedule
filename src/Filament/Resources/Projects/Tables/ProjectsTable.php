@@ -50,6 +50,7 @@ class ProjectsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('title');
+            ->defaultSort('title')
+        ;
     }
 }

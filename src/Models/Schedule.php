@@ -2,17 +2,17 @@
 
 namespace Adultdate\Schedule\Models;
 
+use Adultdate\Schedule\Casts\SafeFrequencyCast;
+use Adultdate\Schedule\Casts\SafeFrequencyConfigCast;
+use Adultdate\Schedule\Data\FrequencyConfig;
+use Adultdate\Schedule\Enums\Frequency;
+use Adultdate\Schedule\Enums\ScheduleTypes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Adultdate\Schedule\Casts\SafeFrequencyCast;
-use Adultdate\Schedule\Casts\SafeFrequencyConfigCast;
-use Adultdate\Schedule\Data\FrequencyConfig;
-use Adultdate\Schedule\Enums\Frequency;
-use Adultdate\Schedule\Enums\ScheduleTypes;
 
 /**
  * @property int $id
@@ -133,7 +133,7 @@ class Schedule extends Model
     /**
      * Scope a query to only include schedules of a specific type.
      */
-    public function scopeOfType(Builder $query, ScheduleTypes|string $type): void
+    public function scopeOfType(Builder $query, ScheduleTypes | string $type): void
     {
         $query->where('schedule_type', $type);
     }
@@ -176,7 +176,8 @@ class Schedule extends Model
             ->where('start_date', '<=', $checkDate)
             ->where(function ($q) use ($checkDate) {
                 $q->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $checkDate);
+                    ->orWhere('end_date', '>=', $checkDate)
+                ;
             })
 
             // recurrence logic
@@ -192,7 +193,8 @@ class Schedule extends Model
                 //
                     ->orWhere(function ($daily) {
                         $daily->where('is_recurring', true)
-                            ->where('frequency', Frequency::DAILY->value);
+                            ->where('frequency', Frequency::DAILY->value)
+                        ;
                     })
 
                 //
@@ -207,7 +209,8 @@ class Schedule extends Model
                                     Frequency::filteredByWeekday()
                                 )
                             )
-                            ->whereJsonContains('frequency_config->days', $weekday);
+                            ->whereJsonContains('frequency_config->days', $weekday)
+                        ;
                     })
 
                 //
@@ -224,10 +227,14 @@ class Schedule extends Model
                             )
                             ->where(function ($m) use ($dayOfMonth) {
                                 $m->whereJsonContains('frequency_config->days_of_month', $dayOfMonth)
-                                    ->orWhere('frequency_config->days_of_month', $dayOfMonth);
-                            });
-                    });
-            });
+                                    ->orWhere('frequency_config->days_of_month', $dayOfMonth)
+                                ;
+                            })
+                        ;
+                    })
+                ;
+            })
+        ;
     }
 
     /**
@@ -240,8 +247,10 @@ class Schedule extends Model
                 ->orWhereBetween('end_date', [$startDate, $endDate])
                 ->orWhere(function ($q2) use ($startDate, $endDate) {
                     $q2->where('start_date', '<=', $startDate)
-                        ->where('end_date', '>=', $endDate);
-                });
+                        ->where('end_date', '>=', $endDate)
+                    ;
+                })
+            ;
         });
     }
 

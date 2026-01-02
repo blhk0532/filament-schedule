@@ -2,10 +2,10 @@
 
 namespace Adultdate\Schedule\Casts;
 
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
-use Illuminate\Database\Eloquent\Model;
 use Adultdate\Schedule\Data\FrequencyConfig;
 use Adultdate\Schedule\Models\Schedule;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use Illuminate\Database\Eloquent\Model;
 
 class SafeFrequencyConfigCast implements CastsAttributes
 {

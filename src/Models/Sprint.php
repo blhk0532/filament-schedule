@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\Models;
 
-use Adultdate\Schedule\Enums\Priority;
 use Adultdate\Schedule\Contracts\Eventable;
+use Adultdate\Schedule\Enums\Priority;
 use Adultdate\Schedule\ValueObjects\CalendarEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +39,7 @@ class Sprint extends Model implements Eventable
             ->title($this->title)
             ->start($this->starts_at)
             ->end($this->ends_at)
-            ->extendedProp('priority', $this->priority->getLabel());
+            ->extendedProp('priority', $this->priority->getLabel())
+        ;
     }
 }

@@ -21,6 +21,7 @@ class ProjectForm
                             ->autofocus(),
                     ])
                     ->columns(1),
-            ]);
+            ])
+        ;
     }
 }

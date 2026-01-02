@@ -2,7 +2,6 @@
 
 namespace Adultdate\Schedule\Filament\Resources\Schedules\RelationManagers;
 
-use Adultdate\Schedule\Filament\Resources\Schedules\ScheduleResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -11,7 +10,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Adultdate\Schedule\Models\SchedulePeriod;
 
 class PeriodsRelationManager extends RelationManager
 {
@@ -28,7 +26,8 @@ class PeriodsRelationManager extends RelationManager
                 TextInput::make('end_time')->label('End time')->placeholder('HH:MM')->required(),
                 Toggle::make('is_available')->label('Available')->default(true),
                 TextInput::make('metadata')->label('Metadata')->helperText('JSON encoded metadata')->nullable(),
-            ]);
+            ])
+        ;
     }
 
     public function table(Table $table): Table
@@ -41,6 +40,7 @@ class PeriodsRelationManager extends RelationManager
                 TextColumn::make('end_time'),
                 IconColumn::make('is_available')->boolean(),
             ])
-            ->defaultSort('date', 'desc');
+            ->defaultSort('date', 'desc')
+        ;
     }
 }

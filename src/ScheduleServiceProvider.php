@@ -12,7 +12,6 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class ScheduleServiceProvider extends PackageServiceProvider
 {
-
     public static string $name = 'adultdate-schedule';
 
     public static string $viewNamespace = 'adultdate-schedule';
@@ -28,13 +27,15 @@ class ScheduleServiceProvider extends PackageServiceProvider
                 $command
                     ->publishConfigFile()
                     ->publishMigrations()
-                    ->askToRunMigrations();
-            });
+                    ->askToRunMigrations()
+                ;
+            })
+        ;
     }
- 
+
     public function packageBooted(): void
     {
-        /* 
+        /*
          * Publish migrations
          */
         $this->publishes([
@@ -47,7 +48,6 @@ class ScheduleServiceProvider extends PackageServiceProvider
         $this->publishes([
             __DIR__ . '/../dist/js' => public_path('vendor/adultdate-schedule'),
         ], 'adultdate-schedule-assets');
-
 
         $this->publishes([
             __DIR__ . '/../resources/dist' => public_path('vendor/adultdate-schedule'),
@@ -73,8 +73,8 @@ class ScheduleServiceProvider extends PackageServiceProvider
                         'calendar-event',
                         $distPath . '/calendar-event.js'
                     ),
-                     AlpineComponent::make(
-                        'filament-fullcalendar-alpine', 
+                    AlpineComponent::make(
+                        'filament-fullcalendar-alpine',
                         $distPath . '/filament-fullcalendar.js'
                     ),
                     Css::make(

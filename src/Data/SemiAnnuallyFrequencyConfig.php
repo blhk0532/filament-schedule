@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\Data;
 
-use Carbon\CarbonInterface;
 use Adultdate\Schedule\Models\Schedule;
+use Carbon\CarbonInterface;
 
 /**
  * @property-read list<int>|null $daysOfMonth

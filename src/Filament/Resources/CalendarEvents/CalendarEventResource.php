@@ -12,10 +12,8 @@ use Adultdate\Schedule\Filament\Resources\CalendarEvents\Schemas\CalendarEventFo
 use Adultdate\Schedule\Filament\Resources\CalendarEvents\Schemas\CalendarEventInfolist;
 use Adultdate\Schedule\Filament\Resources\CalendarEvents\Tables\CalendarEventsTable;
 use Adultdate\Schedule\Models\CalendarEvent;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -27,7 +25,7 @@ final class CalendarEventResource extends Resource
 
     protected static ?string $navigationLabel = 'Events';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
     {

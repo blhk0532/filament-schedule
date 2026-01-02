@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\Facades;
 
-use Illuminate\Support\Facades\Facade;
 use Adultdate\Schedule\Builders\ScheduleBuilder;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static ScheduleBuilder for(mixed $schedulable)

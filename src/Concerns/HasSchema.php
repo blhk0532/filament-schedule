@@ -2,11 +2,11 @@
 
 namespace Adultdate\Schedule\Concerns;
 
+use Adultdate\Schedule\Attributes\CalendarSchema;
+use Adultdate\Schedule\Exceptions\SchemaNotFoundException;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Adultdate\Schedule\Attributes\CalendarSchema;
-use Adultdate\Schedule\Exceptions\SchemaNotFoundException;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
@@ -62,7 +62,7 @@ trait HasSchema
             return $this->getSchemaForModel($schema, $model);
         } catch (SchemaNotFoundException $e) {
             // Try to find form schema in resource
-            /** @var class-string<Resource> $resource */
+            /** @var class-string<resource> $resource */
             if ($resource = Filament::getModelResource($model)) {
                 return $resource::form($schema);
             }
@@ -80,7 +80,7 @@ trait HasSchema
             return $this->getSchemaForModel($schema, $model);
         } catch (SchemaNotFoundException $e) {
             // Try to find infolist schema in resource
-            /** @var class-string<Resource> $resource */
+            /** @var class-string<resource> $resource */
             if ($resource = Filament::getModelResource($model)) {
                 return $resource::infolist($schema);
             }

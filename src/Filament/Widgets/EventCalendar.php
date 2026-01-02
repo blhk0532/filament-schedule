@@ -2,32 +2,32 @@
 
 namespace Adultdate\Schedule\Filament\Widgets;
 
+use Adultdate\Schedule\Attributes\CalendarEventContent;
 use Adultdate\Schedule\Enums\CalendarViewType;
 use Adultdate\Schedule\Enums\Priority;
-use Adultdate\Schedule\Models\Meeting;
-use Adultdate\Schedule\Models\Sprint;
-use Adultdate\Schedule\Models\CalendarSettings;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Auth;
-use Adultdate\Schedule\Attributes\CalendarEventContent;
 use Adultdate\Schedule\Filament\Actions\CreateAction;
 use Adultdate\Schedule\Filament\CalendarWidget;
+use Adultdate\Schedule\Models\CalendarSettings;
+use Adultdate\Schedule\Models\Meeting;
+use Adultdate\Schedule\Models\Sprint;
 use Adultdate\Schedule\ValueObjects\DateClickInfo;
 use Adultdate\Schedule\ValueObjects\DateSelectInfo;
 use Adultdate\Schedule\ValueObjects\EventDropInfo;
 use Adultdate\Schedule\ValueObjects\EventResizeInfo;
 use Adultdate\Schedule\ValueObjects\FetchInfo;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
-use Filament\Schemas\Schema;
 
 final class EventCalendar extends CalendarWidget
 {
     protected static string $viewIdentifier = 'adultdate-schedule::calendar-widget';
 
-    protected string|HtmlString|bool|null $heading = 'Calendar';
+    protected string | HtmlString | bool | null $heading = 'Calendar';
 
     protected bool $eventClickEnabled = true;
 
@@ -98,8 +98,7 @@ final class EventCalendar extends CalendarWidget
         return $config;
     }
 
-
-    protected function getEvents(FetchInfo $info): Collection|array|Builder
+    protected function getEvents(FetchInfo $info): Collection | array | Builder
     {
         $start = $info->start->toMutable()->startOfDay();
         $end = $info->end->toMutable()->endOfDay();
@@ -110,16 +109,19 @@ final class EventCalendar extends CalendarWidget
             ->withCount('users')
             ->whereDate('ends_at', '>=', $start)
             ->whereDate('starts_at', '<=', $end)
-            ->get();
+            ->get()
+        ;
 
         $sprints = Sprint::query()
             ->whereDate('ends_at', '>=', $start)
             ->whereDate('starts_at', '<=', $end)
-            ->get();
+            ->get()
+        ;
 
         $events = collect()
             ->push(...$meetings)
-            ->push(...$sprints);
+            ->push(...$sprints)
+        ;
 
         \Illuminate\Support\Facades\Log::info('Events returned', ['count' => $events->count()]);
 
@@ -204,7 +206,8 @@ final class EventCalendar extends CalendarWidget
         Notification::make()
             ->title('Event rescheduled')
             ->success()
-            ->send();
+            ->send()
+        ;
 
         $this->refreshRecords();
 
@@ -217,7 +220,8 @@ final class EventCalendar extends CalendarWidget
             Notification::make()
                 ->title('Only sprints can be resized')
                 ->warning()
-                ->send();
+                ->send()
+            ;
 
             return false;
         }
@@ -230,7 +234,8 @@ final class EventCalendar extends CalendarWidget
         Notification::make()
             ->title('Sprint duration updated')
             ->success()
-            ->send();
+            ->send()
+        ;
 
         $this->refreshRecords();
 

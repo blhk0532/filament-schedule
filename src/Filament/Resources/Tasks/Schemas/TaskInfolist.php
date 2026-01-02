@@ -40,6 +40,7 @@ class TaskInfolist
                     ->columnSpanFull()
                     ->placeholder('No description provided')
                     ->hidden(fn ($record): bool => blank($record->description)),
-            ]);
+            ])
+        ;
     }
 }

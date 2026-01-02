@@ -52,6 +52,7 @@ class TaskForm
                             ->rule('after:starts_at'),
                     ])
                     ->columns(2),
-            ]);
+            ])
+        ;
     }
 }

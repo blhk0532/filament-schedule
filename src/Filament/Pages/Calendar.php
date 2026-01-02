@@ -3,7 +3,6 @@
 namespace Adultdate\Schedule\Filament\Pages;
 
 use Adultdate\Schedule\Filament\Widgets\CalendarWidget;
-use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Widgets\Widget;
 use UnitEnum;

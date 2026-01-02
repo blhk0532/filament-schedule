@@ -55,6 +55,7 @@ class MeetingsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('starts_at', 'desc');
+            ->defaultSort('starts_at', 'desc')
+        ;
     }
 }

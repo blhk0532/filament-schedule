@@ -2,9 +2,9 @@
 
 namespace Adultdate\Schedule\Filament\Actions;
 
-use Filament\Schemas\Schema;
 use Adultdate\Schedule\Concerns\CalendarAction;
 use Adultdate\Schedule\Contracts\HasCalendar;
+use Filament\Schemas\Schema;
 
 class CreateAction extends \Filament\Actions\CreateAction
 {
@@ -30,6 +30,7 @@ class CreateAction extends \Filament\Actions\CreateAction
                         }
                     }
                 }
+
                 return $data;
             })
             // Ensure forms are prefilled when the action is mounted programmatically
@@ -66,8 +67,7 @@ class CreateAction extends \Filament\Actions\CreateAction
                 // Avoid hard dependency by checking class names
                 if ($model) {
                     $isEventModel = is_a($model, \Adultdate\Schedule\Models\Meeting::class, true)
-                        || is_a($model, \Adultdate\Schedule\Models\Sprint::class, true)
-                    ;
+                        || is_a($model, \Adultdate\Schedule\Models\Sprint::class, true);
                 }
 
                 if ($isEventModel) {

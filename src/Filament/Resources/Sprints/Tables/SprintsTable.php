@@ -64,6 +64,7 @@ class SprintsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('starts_at', 'desc');
+            ->defaultSort('starts_at', 'desc')
+        ;
     }
 }

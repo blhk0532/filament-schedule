@@ -2,28 +2,29 @@
 
 namespace Adultdate\Schedule\Filament\Widgets;
 
+use Adultdate\Schedule\Concerns\HasHeaderActions;
+use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
+use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
+use Adultdate\Schedule\SchedulePlugin;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Pages\Concerns\InteractsWithFormActions;
-use Filament\Pages\Concerns\InteractsWithHeaderActions;
 use Filament\Widgets\Widget;
-use Adultdate\Schedule\SchedulePlugin;
-use Adultdate\Schedule\Concerns\HasHeaderActions;
-use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
-use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
 
-class FullCalendarWidget extends Widget implements HasForms, HasActions
+class FullCalendarWidget extends Widget implements HasActions, HasForms
 {
-    use InteractsWithForms;
+    use CanBeConfigured, HasHeaderActions, InteractsWithRawJS;
     use InteractsWithActions;
-    use HasHeaderActions, CanBeConfigured, InteractsWithRawJS;
+    use InteractsWithForms;
+
     /**
      * Blade view used by this widget (NON-static in Filament v3)
      */
     protected string $view = 'adultdate-schedule::fullcalendar';
+
     protected static ?int $sort = 4;
+
     /**
      * Widget width
      */
@@ -37,7 +38,8 @@ class FullCalendarWidget extends Widget implements HasForms, HasActions
         /** @var SchedulePlugin|null $plugin */
         $plugin = filament()
             ->getCurrentPanel()
-            ?->getPlugin('adultdate-schedule');
+            ?->getPlugin('adultdate-schedule')
+        ;
 
         return [
             // FullCalendar plugins
@@ -50,10 +52,10 @@ class FullCalendarWidget extends Widget implements HasForms, HasActions
 
             // Localization
             'timezone' => $plugin?->getTimezone(),
-            'locale'   => $plugin?->getLocale(),
+            'locale' => $plugin?->getLocale(),
 
             // Interaction flags
-            'editable'   => $plugin?->isEditable() ?? false,
+            'editable' => $plugin?->isEditable() ?? false,
             'selectable' => $plugin?->isSelectable() ?? false,
 
             // Scheduler license key (optional)

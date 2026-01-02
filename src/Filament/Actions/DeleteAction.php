@@ -20,8 +20,10 @@ class DeleteAction extends \Filament\Actions\DeleteAction
         $this->before(function (HasCalendar $livewire) {
             if (! $livewire->getEventRecord()) {
                 $livewire->refreshRecords();
+
                 return false; // Prevent the action
             }
+
             return true;
         });
 

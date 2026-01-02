@@ -45,6 +45,7 @@ class SprintInfolist
                     ->columnSpanFull()
                     ->placeholder('No goals provided')
                     ->hidden(fn ($record): bool => blank($record->description)),
-            ]);
+            ])
+        ;
     }
 }

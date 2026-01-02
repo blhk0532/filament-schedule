@@ -2,12 +2,12 @@
 
 namespace Adultdate\Schedule\Services;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Adultdate\Schedule\Data\FrequencyConfig;
 use Adultdate\Schedule\Enums\ScheduleTypes;
 use Adultdate\Schedule\Models\Schedule;
 use Adultdate\Schedule\Models\SchedulePeriod;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class ConflictDetectionService
 {
@@ -66,7 +66,7 @@ class ConflictDetectionService
         $appliesTo = $noOverlapConfig['applies_to'] ?? [ScheduleTypes::APPOINTMENT->value, ScheduleTypes::BLOCKED->value];
         // We need to convert the schedule types to strings, because the documentation allows both strings and ScheduleTypes
         $appliesTo = array_map(
-            fn (string|ScheduleTypes $type) => $type instanceof ScheduleTypes ? $type->value : $type,
+            fn (string | ScheduleTypes $type) => $type instanceof ScheduleTypes ? $type->value : $type,
             $appliesTo
         );
         $schedule1ShouldCheck = in_array($schedule1->schedule_type->value, $appliesTo);
@@ -327,7 +327,8 @@ class ConflictDetectionService
             ->where('id', '!=', $schedule->id)
             ->active()
             ->with('periods')
-            ->get();
+            ->get()
+        ;
     }
 
     /**
@@ -356,10 +357,12 @@ class ConflictDetectionService
             ->whereHas('periods', function ($query) use ($date, $startTime, $endTime) {
                 $query->whereDate('date', $date)
                     ->where('start_time', '<', $endTime)
-                    ->where('end_time', '>', $startTime);
+                    ->where('end_time', '>', $startTime)
+                ;
             })
             ->with('periods')
-            ->get();
+            ->get()
+        ;
     }
 
     /**

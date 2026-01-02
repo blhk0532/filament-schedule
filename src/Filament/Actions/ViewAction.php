@@ -16,8 +16,10 @@ class ViewAction extends \Filament\Actions\ViewAction
             ->before(function (HasCalendar $livewire) {
                 if (! $livewire->getEventRecord()) {
                     $livewire->refreshRecords();
+
                     return false; // Prevent the action
                 }
+
                 return true;
             })
             ->cancelParentActions()

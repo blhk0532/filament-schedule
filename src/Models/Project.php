@@ -28,6 +28,7 @@ class Project extends Model implements Resourceable
     public function toCalendarResource(): CalendarResource
     {
         return CalendarResource::make($this)
-            ->title($this->title);
+            ->title($this->title)
+        ;
     }
 }

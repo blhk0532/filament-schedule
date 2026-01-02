@@ -2,9 +2,9 @@
 
 namespace Adultdate\Schedule\Services;
 
-use Illuminate\Database\Eloquent\Model;
 use Adultdate\Schedule\Enums\Frequency;
 use Adultdate\Schedule\Exceptions\InvalidScheduleException;
+use Illuminate\Database\Eloquent\Model;
 
 class ValidationService
 {
@@ -578,7 +578,8 @@ class ValidationService
 
             // Throw the appropriate exception type for conflicts
             throw (new \Adultdate\Schedule\Exceptions\ScheduleConflictException($message))
-                ->setConflictingSchedules($conflicts);
+                ->setConflictingSchedules($conflicts)
+            ;
         }
 
         return [];
@@ -598,7 +599,8 @@ class ValidationService
             ->where('id', '!=', $schedule->id)
             ->active()
             ->with('periods')
-            ->get();
+            ->get()
+        ;
 
         $conflictService = app(\Adultdate\Schedule\Services\ConflictDetectionService::class);
 

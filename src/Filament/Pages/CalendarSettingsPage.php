@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Adultdate\Schedule\Filament\Pages;
 
 use Adultdate\Schedule\Models\CalendarSettings;
-use BackedEnum;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -26,7 +25,7 @@ final class CalendarSettingsPage extends Page implements HasForms
 
     protected static ?int $sort = 10;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public function mount(): void
     {
@@ -59,7 +58,8 @@ final class CalendarSettingsPage extends Page implements HasForms
         Notification::make()
             ->title('Inställningar sparade')
             ->success()
-            ->send();
+            ->send()
+        ;
     }
 
     protected function getFormSchema(): array

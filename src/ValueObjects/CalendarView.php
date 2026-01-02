@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\ValueObjects;
 
-use Carbon\CarbonImmutable;
 use Adultdate\Schedule\Enums\CalendarViewType;
+use Carbon\CarbonImmutable;
 
 use function Adultdate\Schedule\utc_to_user_local_time;
 

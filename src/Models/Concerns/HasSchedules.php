@@ -2,13 +2,13 @@
 
 namespace Adultdate\Schedule\Models\Concerns;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Collection;
 use Adultdate\Schedule\Builders\ScheduleBuilder;
 use Adultdate\Schedule\Data\FrequencyConfig;
 use Adultdate\Schedule\Enums\ScheduleTypes;
 use Adultdate\Schedule\Models\Schedule;
 use Adultdate\Schedule\Services\ConflictDetectionService;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 /**
  * Trait HasSchedules
@@ -151,7 +151,8 @@ trait HasSchedules
             ->active()
             ->forDate($date)
             ->with('periods')
-            ->get();
+            ->get()
+        ;
 
         foreach ($schedules as $schedule) {
             $shouldBlock = $schedule->schedule_type->is(ScheduleTypes::CUSTOM) || $schedule->preventsOverlaps();
@@ -313,7 +314,8 @@ trait HasSchedules
             ->active()
             ->forDate($date)
             ->with('periods')
-            ->get();
+            ->get()
+        ;
 
         while ($currentTime->lessThan($endTime) && $iterations < $maxIterations) {
             $slotEnd = $currentTime->copy()->addMinutes($slotDuration);
@@ -405,7 +407,8 @@ trait HasSchedules
             ->unique(fn ($slot) => $slot['start_time'].'|'.$slot['end_time'])
             ->sortBy('start_time')
             ->values()
-            ->toArray();
+            ->toArray()
+        ;
     }
 
     /**
@@ -441,7 +444,8 @@ trait HasSchedules
             ->active()
             ->forDate($date)
             ->with('periods')
-            ->get();
+            ->get()
+        ;
 
         $allPeriods = collect();
 
@@ -465,7 +469,8 @@ trait HasSchedules
                     ->get(['start_time', 'end_time'])
                     ->each(function ($period) use (&$allPeriods) {
                         $allPeriods->push($period);
-                    });
+                    })
+                ;
             }
         });
 
@@ -487,7 +492,8 @@ trait HasSchedules
             ->active()
             ->forDate($date)
             ->with('periods')
-            ->get();
+            ->get()
+        ;
     }
 
     /**
@@ -591,7 +597,8 @@ trait HasSchedules
             ->get()
             ->sum(function ($schedule) {
                 return $schedule->periods->sum('duration_minutes');
-            });
+            })
+        ;
     }
 
     /**

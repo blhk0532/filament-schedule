@@ -137,7 +137,8 @@ class SchedulePeriod extends Model
     public function scopeForTimeRange(\Illuminate\Database\Eloquent\Builder $query, string $startTime, string $endTime): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('start_time', '>=', $startTime)
-            ->where('end_time', '<=', $endTime);
+            ->where('end_time', '<=', $endTime)
+        ;
     }
 
     /**
@@ -189,7 +190,8 @@ class SchedulePeriod extends Model
     {
         return $query
             ->whereRaw('CASE WHEN LENGTH(start_time) = 4 THEN "0" || start_time ELSE start_time END < ?', [$endTime])
-            ->whereRaw('CASE WHEN LENGTH(end_time) = 4 THEN "0" || end_time ELSE end_time END > ?', [$startTime]);
+            ->whereRaw('CASE WHEN LENGTH(end_time) = 4 THEN "0" || end_time ELSE end_time END > ?', [$startTime])
+        ;
     }
 
     /**
@@ -199,7 +201,8 @@ class SchedulePeriod extends Model
     {
         return $query
             ->whereRaw("LPAD(start_time, 5, '0') < ?", [$endTime])
-            ->whereRaw("LPAD(end_time, 5, '0') > ?", [$startTime]);
+            ->whereRaw("LPAD(end_time, 5, '0') > ?", [$startTime])
+        ;
     }
 
     /**

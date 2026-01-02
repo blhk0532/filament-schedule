@@ -64,6 +64,7 @@ final class CalendarEventForm
                             ->visible(fn () => Auth::user()),
                     ])
                     ->columns(2),
-            ]);
+            ])
+        ;
     }
 }

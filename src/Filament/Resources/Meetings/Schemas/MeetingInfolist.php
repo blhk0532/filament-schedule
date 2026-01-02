@@ -35,6 +35,7 @@ class MeetingInfolist
                     ->columnSpanFull()
                     ->placeholder('No agenda provided')
                     ->hidden(fn ($record): bool => blank($record->description)),
-            ]);
+            ])
+        ;
     }
 }

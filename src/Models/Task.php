@@ -4,10 +4,10 @@ namespace Adultdate\Schedule\Models;
 
 use Adultdate\Schedule\Contracts\Eventable;
 use Adultdate\Schedule\ValueObjects\CalendarEvent;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\User;
 
 class Task extends Model implements Eventable
 {
@@ -49,7 +49,8 @@ class Task extends Model implements Eventable
         $event = CalendarEvent::make($this)
             ->title($this->title)
             ->start($this->starts_at)
-            ->end($this->ends_at);
+            ->end($this->ends_at)
+        ;
 
         if ($this->project_id) {
             $event->resourceId($this->project_id);

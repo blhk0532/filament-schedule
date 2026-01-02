@@ -85,9 +85,10 @@ final class CalendarEventsTable
             ->defaultSort('start', 'desc')
             ->modifyQueryUsing(function ($query) {
                 // Show only current user's events unless admin
-            //    if (! Auth::user()?->hasRole('super_admin')) {
-            //        $query->where('user_id', Auth::id());
-            //    }
-            });
+                //    if (! Auth::user()?->hasRole('super_admin')) {
+                //        $query->where('user_id', Auth::id());
+                //    }
+            })
+        ;
     }
 }

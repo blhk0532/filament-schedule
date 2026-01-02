@@ -62,7 +62,6 @@ trait HasFooterActions
     public function getCachedFooterActionsComponent(): Actions
     {
 
-        
         return Actions::make($this->getCachedFooterActions())
             ->container(Schema::make($this))
         ;

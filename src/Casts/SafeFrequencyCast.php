@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\Casts;
 
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Adultdate\Schedule\Enums\Frequency;
+use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class SafeFrequencyCast implements CastsAttributes
 {

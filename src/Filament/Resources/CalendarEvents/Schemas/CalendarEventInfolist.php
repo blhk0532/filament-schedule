@@ -63,6 +63,7 @@ final class CalendarEventInfolist
                             ->toggleable(isToggledHiddenByDefault: true),
                     ])
                     ->columns(2),
-            ]);
+            ])
+        ;
     }
 }

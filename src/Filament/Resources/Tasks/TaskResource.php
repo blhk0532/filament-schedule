@@ -9,7 +9,6 @@ use Adultdate\Schedule\Filament\Resources\Tasks\Schemas\TaskForm;
 use Adultdate\Schedule\Filament\Resources\Tasks\Schemas\TaskInfolist;
 use Adultdate\Schedule\Filament\Resources\Tasks\Tables\TasksTable;
 use Adultdate\Schedule\Models\Task;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -19,7 +18,7 @@ class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
     {

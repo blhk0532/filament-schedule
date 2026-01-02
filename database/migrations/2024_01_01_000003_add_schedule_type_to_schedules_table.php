@@ -1,9 +1,9 @@
 <?php
 
+use Adultdate\Schedule\Enums\ScheduleTypes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Adultdate\Schedule\Enums\ScheduleTypes;
 
 return new class extends Migration
 {
@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::table('schedules', function (Blueprint $table) {
             $table->enum('schedule_type', ScheduleTypes::values())
                 ->default(ScheduleTypes::CUSTOM)
-                ->after('description');
+                ->after('description')
+            ;
 
             // Add indexes for performance
             $table->index('schedule_type', 'schedules_type_index');

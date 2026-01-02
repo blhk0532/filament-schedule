@@ -2,15 +2,15 @@
 
 namespace Adultdate\Schedule\Services;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Adultdate\Schedule\Builders\ScheduleBuilder;
 use Adultdate\Schedule\Data\FrequencyConfig;
 use Adultdate\Schedule\Enums\Frequency;
 use Adultdate\Schedule\Events\ScheduleCreated;
 use Adultdate\Schedule\Exceptions\ScheduleConflictException;
 use Adultdate\Schedule\Models\Schedule;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 class ScheduleService
 {
@@ -178,7 +178,8 @@ class ScheduleService
         );
         if (method_exists($schedulable, 'isBookableAt')) {
             $durationMinutes = \Carbon\Carbon::parse($date.' '.$endTime)
-                ->diffInMinutes(\Carbon\Carbon::parse($date.' '.$startTime));
+                ->diffInMinutes(\Carbon\Carbon::parse($date.' '.$startTime))
+            ;
 
             return $schedulable->isBookableAt($date, $durationMinutes);
         }

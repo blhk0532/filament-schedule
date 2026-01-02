@@ -2,8 +2,8 @@
 
 namespace Adultdate\Schedule\Data;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Adultdate\Schedule\Models\Schedule;
+use Illuminate\Contracts\Support\Arrayable;
 
 abstract class FrequencyConfig implements Arrayable
 {

@@ -8,7 +8,6 @@ use Adultdate\Schedule\Filament\Resources\Projects\Pages\ListProjects;
 use Adultdate\Schedule\Filament\Resources\Projects\Schemas\ProjectForm;
 use Adultdate\Schedule\Filament\Resources\Projects\Tables\ProjectsTable;
 use Adultdate\Schedule\Models\Project;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -18,7 +17,7 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Schedules';
+    protected static string | UnitEnum | null $navigationGroup = 'Schedules';
 
     public static function form(Schema $schema): Schema
     {

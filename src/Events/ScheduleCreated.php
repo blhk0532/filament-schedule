@@ -2,10 +2,10 @@
 
 namespace Adultdate\Schedule\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 use Adultdate\Schedule\Enums\Frequency;
 use Adultdate\Schedule\Models\Schedule;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class ScheduleCreated
 {

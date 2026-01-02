@@ -2,39 +2,35 @@
 
 namespace Adultdate\Schedule\Filament\Widgets;
 
-use Filament\Forms\Components\ColorPicker;
+use Adultdate\Schedule\Actions;
+use Adultdate\Schedule\Concerns\CanRefreshCalendar;
+use Adultdate\Schedule\Concerns\HasHeaderActions;
+use Adultdate\Schedule\Concerns\HasSchema;
+use Adultdate\Schedule\Concerns\InteractsWithCalendar;
+use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
+use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
+use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
 use Adultdate\Schedule\Models\CalendarSettings;
+use Adultdate\Schedule\ValueObjects\FetchInfo;
+use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Adultdate\Schedule\Actions;
-use Adultdate\Schedule\Filament\Widgets\FullCalendarWidget;
-use Carbon\Carbon;
-use Adultdate\Schedule\Concerns\HasHeaderActions;
-use Adultdate\Schedule\Concerns\InteractsWithCalendar;
-use Adultdate\Schedule\Filament\Widgets\Concerns\CanBeConfigured;
-use Adultdate\Schedule\Filament\Widgets\Concerns\InteractsWithRawJS;
-use Adultdate\Schedule\Concerns\HasSchema;
-use Adultdate\Schedule\Concerns\CanRefreshCalendar;
-use Adultdate\Schedule\Concerns\InteractsWithEventRecord;
-use Adultdate\Schedule\ValueObjects\FetchInfo;
-
-use Filament\Actions\Action;
-use Filament\Schemas\Schema;
 
 class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\Contracts\HasCalendar
 {
-    use HasHeaderActions, InteractsWithCalendar, CanBeConfigured, InteractsWithRawJS, HasSchema, CanRefreshCalendar, InteractsWithEventRecord {
+    use CanBeConfigured, CanRefreshCalendar, HasHeaderActions, HasSchema, InteractsWithCalendar, InteractsWithEventRecord, InteractsWithRawJS {
         InteractsWithCalendar::getOptions insteadof CanBeConfigured;
     }
-    public Model|string|null $model = 'Adultdate\Schedule\Models\CalendarEvent';
+
+    public Model | string | null $model = 'Adultdate\Schedule\Models\CalendarEvent';
 
     protected static ?int $sort = 2;
 
@@ -44,14 +40,14 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
 
     protected static string $viewIdentifier = 'adultdate-schedule::calendar-widget';
 
-    protected int|string|array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 'full';
 
     public function getModel(): string
     {
         return $this->model;
     }
 
-     public function config(): array
+    public function config(): array
     {
         $settings = CalendarSettings::where('user_id', Auth::id())->first();
 
@@ -68,15 +64,15 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
             'nowIndicator' => true,
             'views' => [
                 'timeGridDay' => [
-                //    'slotMinTime' => $openingStart,
-                //    'slotMaxTime' => $openingEnd,
+                    //    'slotMinTime' => $openingStart,
+                    //    'slotMaxTime' => $openingEnd,
                     'slotMinTime' => '00:00:00',
                     'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
                 ],
                 'timeGridWeek' => [
-                //    'slotMinTime' => $openingStart,
-                //    'slotMaxTime' => $openingEnd,
+                    //    'slotMinTime' => $openingStart,
+                    //    'slotMaxTime' => $openingEnd,
                     'slotMinTime' => '00:00:00',
                     'slotMaxTime' => '24:00:00',
                     'slotHeight' => 60,
@@ -118,14 +114,14 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
         ];
     }
 
-    protected function getEvents(FetchInfo $info): Collection|array|Builder
+    protected function getEvents(FetchInfo $info): Collection | array | Builder
     {
         $start = $info->start->toMutable()->startOfDay();
         $end = $info->end->toMutable()->endOfDay();
 
         $userId = filament()->auth()->id() ?? Auth::id();
 
-        if (!$userId) {
+        if (! $userId) {
             $user = filament()->auth()->user();
             if ($user) {
                 $userId = $user->id;
@@ -133,7 +129,7 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
         }
 
         // If no user is authenticated, return empty collection
-        if (!$userId) {
+        if (! $userId) {
             return collect();
         }
 
@@ -141,7 +137,8 @@ class CalendarWidget extends FullCalendarWidget implements \Adultdate\Schedule\C
             ->where('user_id', $userId)
             ->whereDate('end', '>=', $start)
             ->whereDate('start', '<=', $end)
-            ->get();
+            ->get()
+        ;
     }
 
     public function getHeaderActions(): array

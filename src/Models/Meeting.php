@@ -2,13 +2,13 @@
 
 namespace Adultdate\Schedule\Models;
 
-use App\Models\User;
 use Adultdate\Schedule\Contracts\Eventable;
 use Adultdate\Schedule\ValueObjects\CalendarEvent;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
- 
+
 class Meeting extends Model implements Eventable
 {
     /** @use HasFactory<\Database\Factories\MeetingFactory> */
@@ -46,6 +46,7 @@ class Meeting extends Model implements Eventable
             ->start($this->starts_at)
             ->end($this->ends_at)
             ->durationEditable(false)
-            ->extendedProp('participants', $participants);
+            ->extendedProp('participants', $participants)
+        ;
     }
 }
